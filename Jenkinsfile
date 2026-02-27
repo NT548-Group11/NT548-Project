@@ -6,6 +6,7 @@ pipeline {
             steps {
                 sh 'cd backend; docker build -t noseyug/gymflex-be:v0 .; cd ../frontend; docker build -t noseyug/gymflex-fe:v0 .; '
                 sh 'docker image ls'
+                ///
                 
             }
         }
