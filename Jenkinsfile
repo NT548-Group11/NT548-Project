@@ -6,6 +6,8 @@ pipeline {
             steps {
                 sh 'pwd; ls -la'
                 ///
+
+                ///
             }
         }
         // stage('Test') {
