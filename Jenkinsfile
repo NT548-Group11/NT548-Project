@@ -9,6 +9,7 @@ pipeline {
                 sh 'docker image ls'
                 ///
                 ///
+                ///
             }
         }
         // stage('Test') {
