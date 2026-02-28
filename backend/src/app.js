@@ -24,7 +24,7 @@ const app = express();
 // CORS (nên đưa origin sang env sau)
 app.use(
   cors({
-    origin: "http://localhost",
+    origin: "http://gymflex.noseyug.vn",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })

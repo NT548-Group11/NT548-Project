@@ -355,7 +355,7 @@ const forgotPasswordToken = asyncHandler(async (req, res) => {
     const token = await user.createPasswordResetToken();
     await user.save();
 
-    const resetUrl = `Hi, please follow this link to reset your password. This link is valid for 10 minutes. <a href='http://localhost/reset-password/${token}'>Click here</a>`;
+    const resetUrl = `Hi, please follow this link to reset your password. This link is valid for 10 minutes. <a href='http://gymflex.noseyug.vn/reset-password/${token}'>Click here</a>`;
 
     const data = {
       to: email,
@@ -606,8 +606,8 @@ const createPayment = async (req, res) => {
     customerName: req.user.firstname || "Khách hàng",
     amount: finalAmount,
     description,
-    returnUrl: "http://localhost/?payment=success",
-    cancelUrl: "http://localhost/carts",
+    returnUrl: "http://gymflex.noseyug.vn/?payment=success",
+    cancelUrl: "http://gymflex.noseyug.vn/carts",
   };
 
   try {
