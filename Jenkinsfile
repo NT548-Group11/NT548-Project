@@ -1,9 +1,12 @@
 pipeline {
     agent {label "jenkins-agent"}
+
     variables {
         // Define any environment variables here
 
-    }stage('Print Commit') {
+    }
+    
+    stage('Print Commit') {
     steps {
         sh 'echo $GITHUB_SHA'
     }
