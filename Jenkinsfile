@@ -1,20 +1,20 @@
 pipeline {
     agent {label "jenkins-agent"}
 
-    variables {
-        // Define any environment variables here
+    // variables {
+    //     // Define any environment variables here
 
-    }
-    
-    stage('Print Commit') {
-    steps {
-        sh 'echo $GITHUB_SHA'
-    }
-    }
+    // }
+
+    // stage('Print Commit') {
+    // steps {
+    //     sh 'echo $GITHUB_SHA'
+    // }
+    // }
     stages {
         stage('Build') {
             steps {
-                
+                sh 'echo $GITHUB_SHA'
                 //sh 'cd backend; docker build -t noseyug/gymflex-be:v0 .; cd ../frontend; docker build -t noseyug/gymflex-fe:v0 .; '
                 //sh 'docker image ls'
                 
