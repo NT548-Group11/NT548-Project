@@ -18,6 +18,7 @@ pipeline {
         }
         stage('Build') {
             steps { 
+                sh 'whoami'
                 sh 'cd backend; docker build -t $DOCKER_USERNAME/$PROJECT_NAME-be:$TAG .'
                 sh 'cd ../frontend; docker build -t $DOCKER_USERNAME/$PROJECT_NAME-fe:$TAG .'
             }
