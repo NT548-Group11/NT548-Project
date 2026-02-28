@@ -39,13 +39,28 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
+        // stage('Deploy to Kubernetes') {
+        //     steps {
+        //         sh '''
+        //         kubectl get nodes
+        //         #kubectl set image deployment/gymflex-backend gymflex-backend=$FULL_BACKEND_IMAGE --namespace=default
+        //         #kubectl set image deployment/gymflex-frontend gymflex-frontend=$FULL_FRONTEND_IMAGE --namespace=default
+        //         '''
+                
+        //     }
+        // }
+        stage('Deploy') {
             steps {
-                sh '''
-                kubectl get nodes
-                #kubectl set image deployment/gymflex-backend gymflex-backend=$FULL_BACKEND_IMAGE --namespace=default
-                #kubectl set image deployment/gymflex-frontend gymflex-frontend=$FULL_FRONTEND_IMAGE --namespace=default
-                '''
+                sh """
+                kubectl set image deployment/gymflex-backend-deployment \
+                gymflex-backend=noseyug/gymflex-backend:${TAG} -n gymflex
+
+                kubectl set image deployment/gymflex-frontend-deployment \
+                gymflex-frontend=noseyug/gymflex-frontend:${TAG} -n gymflex
+
+                kubectl rollout status deployment/gymflex-backend-deployment -n gymflex
+                kubectl rollout status deployment/gymflex-frontend-deployment -n gymflex
+                """
             }
         }
          stage('Cleanup') {
