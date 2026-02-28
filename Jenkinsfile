@@ -2,59 +2,59 @@ pipeline {
     agent {label "jenkins-agent"}
 
     environment {
-        PROJECT_NAME = 'gymflex'
+    BACKEND_IMAGE = "noseyug/gymflex-backend"
+    FRONTEND_IMAGE = "noseyug/gymflex-frontend"
 
+    IMAGE_TAG = "v${BUILD_ID}"
+
+    FULL_BACKEND_IMAGE = "${BACKEND_IMAGE}:${IMAGE_TAG}"
+    FULL_FRONTEND_IMAGE = "${FRONTEND_IMAGE}:${IMAGE_TAG}"
+
+    GIT_CREDENTIALS_ID = 'github-account'
     }
 
     stages {
-        stage('Prepare') {
-            steps {
-                script {
-                    env.TAG = env.GIT_COMMIT.take(6)
+        stage('Build Images') {
+            steps { 
+                dir('backend') {
+                    sh "docker build -t $FULL_BACKEND_IMAGE ."
+                }
+                dir('frontend') {
+                    sh "docker build -t $FULL_FRONTEND_IMAGE ."
                 }
             }
         }
-        stage('Docker Login') {
+        stage('Push Images') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'docker-account',
-                    usernameVariable: 'DOCKER_USERNAME',
-                    passwordVariable: 'DOCKER_PASSWORD'
+                    credentialsId: "${GIT_CREDENTIALS_ID}",
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASSWD'
                 )]) {
                     sh '''
-                    echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                    echo $PASSWD | docker login -u $USER --password-stdin
+                    docker push $FULL_BACKEND_IMAGE
+                    docker push $FULL_FRONTEND_IMAGE
                     '''
                 }
             }
         }
-        stage('Build') {
-            steps { 
-                dir('backend') {
-                    sh 'docker build -t $DOCKER_USERNAME/$PROJECT_NAME-backend:$TAG .'
-                }
-                dir('frontend') {
-                    sh 'docker build -t $DOCKER_USERNAME/$PROJECT_NAME-frontend:$TAG .'
-                }
-            }
-        }
-        stage('Docker Push') {
+        stage('Deploy to Kubernetes') {
             steps {
-                sh 'docker push $DOCKER_USERNAME/$PROJECT_NAME-backend:$TAG'
-                sh 'docker push $DOCKER_USERNAME/$PROJECT_NAME-frontend:$TAG'
+                sh '''
+                kubectl get nodes
+                #kubectl set image deployment/gymflex-backend gymflex-backend=$FULL_BACKEND_IMAGE --namespace=default
+                #kubectl set image deployment/gymflex-frontend gymflex-frontend=$FULL_FRONTEND_IMAGE --namespace=default
+                '''
             }
         }
          stage('Cleanup') {
             steps {
                 sh '''
-                docker rmi $DOCKER_USERNAME/$PROJECT_NAME-backend:$TAG || true
-                docker rmi $DOCKER_USERNAME/$PROJECT_NAME-frontend:$TAG || true
+                docker rmi $FULL_BACKEND_IMAGE || true
+                docker rmi $FULL_FRONTEND_IMAGE || true
                 docker builder prune -af
                 '''
-
-                ///
-
-                
-                ///
             }
         }
     }
