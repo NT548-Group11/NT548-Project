@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'echo $GIT_COMMIT'
+                sh 'echo $GIT_COMMIT; echo $BUILD_TAG; echo $BUILD_ID; echo $BUILD_NUMBER; echo $GIT_BRANCH; echo $GIT_URL'
                 //sh 'cd backend; docker build -t noseyug/gymflex-be:v0 .; cd ../frontend; docker build -t noseyug/gymflex-fe:v0 .; '
                 //sh 'docker image ls'
                 
