@@ -18,15 +18,27 @@ pipeline {
         }
         stage('Build') {
             steps { 
-                sh 'whoami'
-                sh 'cd backend; docker build -t $DOCKER_USERNAME/$PROJECT_NAME-be:$TAG .'
-                sh 'cd ../frontend; docker build -t $DOCKER_USERNAME/$PROJECT_NAME-fe:$TAG .'
+                dir('backend') {
+                    sh 'docker build -t $DOCKER_USERNAME/$PROJECT_NAME-be:$TAG .'
+                }
+                dir('frontend') {
+                    sh 'docker build -t $DOCKER_USERNAME/$PROJECT_NAME-fe:$TAG .'
+                }
             }
         }
         stage('Docker Push') {
             steps {
                 sh 'docker push $DOCKER_USERNAME/$PROJECT_NAME-be:$TAG'
                 sh 'docker push $DOCKER_USERNAME/$PROJECT_NAME-fe:$TAG'
+            }
+        }
+         stage('Cleanup') {
+            steps {
+                sh '''
+                docker rmi $DOCKER_USERNAME/$PROJECT_NAME-be:$TAG || true
+                docker rmi $DOCKER_USERNAME/$PROJECT_NAME-fe:$TAG || true
+                docker builder prune -af
+                '''
             }
         }
     }
