@@ -9,7 +9,9 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
-                env.TAG = env.GIT_COMMIT.take(6)
+                script {
+                    env.TAG = env.GIT_COMMIT.take(6)
+                }
             }
         }
         stage('Docker Login') {
