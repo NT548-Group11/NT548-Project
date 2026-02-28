@@ -56,7 +56,7 @@ function Home() {
           <div className="home-section__content">
             <Row gutter={[30, 30]} align={"middle"}>
               <Col xs={24} md={12} className="home-content">
-                <h1 className="home-title">Nâng tầm thể chất của .............</h1> 
+                <h1 className="home-title">Nâng tầm thể chất của bạn</h1> 
                 <p className="home-description">
                   Chào mừng bạn đến với trung tâm Gym của chúng tôi! Tại đây,
                   bạn sẽ tìm thấy các chương trình luyện tập chuyên nghiệp,
