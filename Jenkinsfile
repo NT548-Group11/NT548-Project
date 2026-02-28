@@ -51,6 +51,8 @@ pipeline {
                 docker rmi $DOCKER_USERNAME/$PROJECT_NAME-frontend:$TAG || true
                 docker builder prune -af
                 '''
+
+                ///
             }
         }
     }
