@@ -10,7 +10,7 @@ pipeline {
     FULL_BACKEND_IMAGE = "${BACKEND_IMAGE}:${IMAGE_TAG}"
     FULL_FRONTEND_IMAGE = "${FRONTEND_IMAGE}:${IMAGE_TAG}"
 
-    GIT_CREDENTIALS_ID = 'github-account'
+    GIT_CREDENTIALS_ID = 'docker-account'
     }
 
     stages {
