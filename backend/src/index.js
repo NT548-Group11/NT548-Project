@@ -20,10 +20,7 @@
 // const morgan = require('morgan');
 // dbConnect();
 // app.use(cors({
-//   origin: "http://gymflex.noseyug.vn",
-//   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], 
-//   credentials: true, 
-// }));
+
 
 // app.use(morgan("dev")); 
 // app.use(express.json()); 

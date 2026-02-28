@@ -1,6 +1,6 @@
 
 import { post,get,patch, put } from "../utils/request";
-const API_DOMAIN = "http://api-gymflex.noseyug.vn:3002/";
+const API_DOMAIN = "http://gymflex-backend-service:3002/";
 
 //
 export const login = async (username, password) => {
