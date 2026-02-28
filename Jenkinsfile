@@ -2,15 +2,27 @@ pipeline {
     agent {label "jenkins-agent"}
 
     environment {
-        DOCKER_USERNAME = credentials('DOCKER_USERNAME')
-        DOCKER_PASSWORD = credentials('DOCKER_PASSWORD')
         PROJECT_NAME = 'gymflex'
-        TAG = "${env.GIT_COMMIT.take(6)}"
+
     }
 
     stages {
+        stage('Prepare') {
+            steps {
+                env.TAG = env.GIT_COMMIT.take(6)
+            }
+        }
         stage('Docker Login') {
             steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-account',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    sh '''
+                    echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                    '''
+                }
                 sh '''
                 echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
                 '''
@@ -19,24 +31,24 @@ pipeline {
         stage('Build') {
             steps { 
                 dir('backend') {
-                    sh 'docker build -t $DOCKER_USERNAME/$PROJECT_NAME-be:$TAG .'
+                    sh 'docker build -t $DOCKER_USERNAME/$PROJECT_NAME-backend:$TAG .'
                 }
                 dir('frontend') {
-                    sh 'docker build -t $DOCKER_USERNAME/$PROJECT_NAME-fe:$TAG .'
+                    sh 'docker build -t $DOCKER_USERNAME/$PROJECT_NAME-frontend:$TAG .'
                 }
             }
         }
         stage('Docker Push') {
             steps {
-                sh 'docker push $DOCKER_USERNAME/$PROJECT_NAME-be:$TAG'
-                sh 'docker push $DOCKER_USERNAME/$PROJECT_NAME-fe:$TAG'
+                sh 'docker push $DOCKER_USERNAME/$PROJECT_NAME-backend:$TAG'
+                sh 'docker push $DOCKER_USERNAME/$PROJECT_NAME-frontend:$TAG'
             }
         }
          stage('Cleanup') {
             steps {
                 sh '''
-                docker rmi $DOCKER_USERNAME/$PROJECT_NAME-be:$TAG || true
-                docker rmi $DOCKER_USERNAME/$PROJECT_NAME-fe:$TAG || true
+                docker rmi $DOCKER_USERNAME/$PROJECT_NAME-backend:$TAG || true
+                docker rmi $DOCKER_USERNAME/$PROJECT_NAME-frontend:$TAG || true
                 docker builder prune -af
                 '''
             }
