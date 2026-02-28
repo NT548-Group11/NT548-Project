@@ -51,16 +51,16 @@ pipeline {
         // }
         stage('Deploy') {
             steps {
-                sh """
+                sh '''
                 kubectl set image deployment/gymflex-backend-deployment \
-                gymflex-backend=noseyug/gymflex-backend:${TAG} -n gymflex
+                gymflex-backend=$FULL_BACKEND_IMAGE -n gymflex
 
                 kubectl set image deployment/gymflex-frontend-deployment \
-                gymflex-frontend=noseyug/gymflex-frontend:${TAG} -n gymflex
+                gymflex-frontend=$FULL_FRONTEND_IMAGE -n gymflex
 
                 kubectl rollout status deployment/gymflex-backend-deployment -n gymflex
                 kubectl rollout status deployment/gymflex-frontend-deployment -n gymflex
-                """
+                '''
             }
         }
          stage('Cleanup') {
