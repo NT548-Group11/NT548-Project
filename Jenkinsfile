@@ -1,28 +1,32 @@
 pipeline {
     agent {label "jenkins-agent"}
 
-    // variables {
-    //     // Define any environment variables here
+    variables {
+        username = credentials('DOCKER_USERNAME')
+        password = credentials('DOCKER_PASSWORD')
 
-    // }
+    }
 
-    // stage('Print Commit') {
-    // steps {
-    //     sh 'echo $GITHUB_SHA'
-    // }
-    // }
     stages {
-        stage('Build') {
+        stage('Docker Login') {
             steps {
-                sh 'echo $GIT_COMMIT; echo $BUILD_TAG; echo $BUILD_ID; echo $BUILD_NUMBER; echo $GIT_BRANCH; echo $GIT_URL'
-                //sh 'cd backend; docker build -t noseyug/gymflex-be:v0 .; cd ../frontend; docker build -t noseyug/gymflex-fe:v0 .; '
-                //sh 'docker image ls'
-                
-                ///
-
-                ///
+                sh 'docker login -u $username -p $password'
             }
         }
+        stage('Build') {
+            steps {
+                def tag = env.GIT_COMMIT.take(6)   
+                sh 'cd backend; docker build -t noseyug/gymflex-be:${tag} .'
+                sh 'cd ../frontend; docker build -t noseyug/gymflex-fe:${tag} .'
+            }
+        }
+                stage('Docker Push') {
+            steps {
+                sh 'docker push noseyug/gymflex-be:${tag}'
+                sh 'docker push noseyug/gymflex-fe:${tag}'
+            }
+        }
+
         // stage('Test') {
         //     steps {
         //         echo 'Testing..'
