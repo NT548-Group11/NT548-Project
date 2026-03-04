@@ -24,7 +24,7 @@ const app = express();
 // CORS (nên đưa origin sang env sau)
 app.use(
   cors({
-    origin: "http://a783d4e9b91a2430696f379e597c09c3-111558390.ap-southeast-1.elb.amazonaws.com",
+    origin: "/",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })

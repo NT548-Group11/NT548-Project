@@ -39,16 +39,6 @@ pipeline {
                 }
             }
         }
-        // stage('Deploy to Kubernetes') {
-        //     steps {
-        //         sh '''
-        //         kubectl get nodes
-        //         #kubectl set image deployment/gymflex-backend gymflex-backend=$FULL_BACKEND_IMAGE --namespace=default
-        //         #kubectl set image deployment/gymflex-frontend gymflex-frontend=$FULL_FRONTEND_IMAGE --namespace=default
-        //         '''
-                ///
-        //     }
-        // }
         stage('Deploy') {
             steps {
                 sh '''
@@ -60,7 +50,7 @@ pipeline {
 
                 kubectl rollout status deployment/gymflex-backend-deployment -n gymflex
                 kubectl rollout status deployment/gymflex-frontend-deployment -n gymflex
-                
+
                 '''
             }
         }

@@ -1,7 +1,7 @@
 import { getCookie } from "../helpers/cookie";
 import { refreshToken } from "../services/usersServices";
 
-const API_DOMAIN = "http://gymflex-backend-service:3002/";
+const API_DOMAIN = "/api";
 
 export const get = async (path) => {
   let token = getCookie("accessToken");

@@ -355,7 +355,7 @@ const forgotPasswordToken = asyncHandler(async (req, res) => {
     const token = await user.createPasswordResetToken();
     await user.save();
 
-    const resetUrl = `Hi, please follow this link to reset your password. This link is valid for 10 minutes. <a href='http://a783d4e9b91a2430696f379e597c09c3-111558390.ap-southeast-1.elb.amazonaws.com/reset-password/${token}'>Click here</a>`;
+    const resetUrl = `Hi, please follow this link to reset your password. This link is valid for 10 minutes. <a href='/reset-password/${token}'>Click here</a>`;
 
     const data = {
       to: email,
@@ -606,8 +606,8 @@ const createPayment = async (req, res) => {
     customerName: req.user.firstname || "Khách hàng",
     amount: finalAmount,
     description,
-    returnUrl: "http://a783d4e9b91a2430696f379e597c09c3-111558390.ap-southeast-1.elb.amazonaws.com/?payment=success",
-    cancelUrl: "http://a783d4e9b91a2430696f379e597c09c3-111558390.ap-southeast-1.elb.amazonaws.com/carts",
+    returnUrl: "/?payment=success",
+    cancelUrl: "/carts",
   };
 
   try {
