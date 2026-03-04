@@ -24,7 +24,7 @@ const app = express();
 // CORS (nên đưa origin sang env sau)
 app.use(
   cors({
-    origin: "/",
+    origin: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
