@@ -12,8 +12,16 @@ pipeline {
 
     GIT_CREDENTIALS_ID = 'docker-account'
     }
-
+    
     stages {
+        stage('Cleanup') {
+            steps {
+                sh '''
+                docker rmi -f $(docker images -aq) 2>/dev/null || true
+                docker builder prune -af
+                '''
+            }
+        }
         stage('Build Images') {
             steps { 
                 dir('backend') {
@@ -51,15 +59,6 @@ pipeline {
                 kubectl rollout status deployment/gymflex-backend-deployment -n gymflex
                 kubectl rollout status deployment/gymflex-frontend-deployment -n gymflex
 
-                '''
-            }
-        }
-         stage('Cleanup') {
-            steps {
-                sh '''
-                docker rmi $FULL_BACKEND_IMAGE || true
-                docker rmi $FULL_FRONTEND_IMAGE || true
-                docker builder prune -af
                 '''
             }
         }

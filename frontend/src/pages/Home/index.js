@@ -56,7 +56,7 @@ function Home() {
           <div className="home-section__content">
             <Row gutter={[30, 30]} align={"middle"}>
               <Col xs={24} md={12} className="home-content">
-                <h1 className="home-title">Nâng tầm thể chất của bạn</h1> 
+                <h1 className="home-title">Nâng tầm thể chất của bạn👹</h1> 
                 <p className="home-description">
                   Chào mừng bạn đến với trung tâm Gym của chúng tôi! Tại đây,
                   bạn sẽ tìm thấy các chương trình luyện tập chuyên nghiệp,
@@ -64,7 +64,7 @@ function Home() {
                   Hãy bắt đầu hành trình thay đổi bản thân ngay hôm nay!
                 </p>
                 <Button className="cta-button" type="primary" size="large">
-                  <NavLink to="/login">Khám Phá Ngay🐧</NavLink>
+                  <NavLink to="/login">Khám Phá Ngay🐧👹😏</NavLink>
                 </Button>
               </Col>
               <Col xs={24} md={12} className="home-image">
