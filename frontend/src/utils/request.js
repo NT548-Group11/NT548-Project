@@ -1,7 +1,7 @@
 import { getCookie } from "../helpers/cookie";
 import { refreshToken } from "../services/usersServices";
 
-const API_DOMAIN = "/api";
+const API_DOMAIN = "";
 
 export const get = async (path) => {
   let token = getCookie("accessToken");

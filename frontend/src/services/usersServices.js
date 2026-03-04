@@ -1,6 +1,6 @@
 
 import { post,get,patch, put } from "../utils/request";
-const API_DOMAIN = '/api';
+const API_DOMAIN = '';
 
 //
 export const login = async (username, password) => {
@@ -129,7 +129,7 @@ export const logout = async () => {
 
 export const refreshToken = async () => {
   try {
-    const res = await fetch(`${API_DOMAIN}/user/refresh`, {
+    const res = await fetch(`${API_DOMAIN}/api/user/refresh`, {
       method: "GET",
       credentials: "include",
     });
