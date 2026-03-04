@@ -59,7 +59,6 @@ pipeline {
                 sh '''
                 docker rmi $FULL_BACKEND_IMAGE || true
                 docker rmi $FULL_FRONTEND_IMAGE || true
-                test
                 docker builder prune -af
                 '''
             }
