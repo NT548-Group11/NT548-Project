@@ -21,7 +21,7 @@ const reviewRouter = require("./routes/reviewRoute");
 
 const app = express();
 
-// CORS (nên đưa origin sang env sau)
+// CORS 
 app.use(
   cors({
     origin: true,
