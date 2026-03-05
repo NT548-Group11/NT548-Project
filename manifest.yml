@@ -117,7 +117,7 @@ spec:
   type: ClusterIP
 
 ---
-# Ingress duy nhất (NGINX) - Catch-all, không host → truy cập qua IP node
+# Ingress 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -129,7 +129,7 @@ spec:
   rules:
     - http:
         paths:
-          # Backend API
+          # Backend 
           - path: /api
             pathType: Prefix
             backend:

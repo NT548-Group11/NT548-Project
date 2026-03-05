@@ -58,7 +58,6 @@ pipeline {
 
                 kubectl rollout status deployment/gymflex-backend-deployment -n gymflex
                 kubectl rollout status deployment/gymflex-frontend-deployment -n gymflex
-
                 '''
             }
         }
