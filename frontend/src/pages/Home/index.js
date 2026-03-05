@@ -64,7 +64,7 @@ function Home() {
                   Hãy bắt đầu hành trình thay đổi bản thân ngay hôm nay!
                 </p>
                 <Button className="cta-button" type="primary" size="large">
-                  <NavLink to="/login">Khám Phá Ngay🐧</NavLink>
+                  <NavLink to="/login">Khám Phá Ngay 🐧</NavLink>
                 </Button>
               </Col>
               <Col xs={24} md={12} className="home-image">
