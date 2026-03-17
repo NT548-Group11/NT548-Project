@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nt548-apps
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/NT548-Group11/NT548-Project.git'
+    targetRevision: main
+    path: k8s/apps
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: devops-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nt548-infra
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/NT548-Group11/NT548-Project.git'
+    targetRevision: main
+    path: k8s/infra
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

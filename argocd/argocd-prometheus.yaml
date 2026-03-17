@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: prometheus
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: 25.11.0 # Bản gốc siêu nhẹ
+    helm:
+      values: |
+        alertmanager:
+          enabled: false
+        nodeExporter:
+          enabled: false
+        pushgateway:
+          enabled: false
+        kube-state-metrics:
+          enabled: false
+        server:
+          global:
+            scrape_interval: 15s
+          remoteWrite:
+            - url: http://mimir-service.monitoring.svc.cluster.local:8080/api/v1/push
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: grafana
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 7.3.0
+    helm:
+      values: |
+        datasources:
+          datasources.yaml:
+            apiVersion: 1
+            datasources:
+            - name: Mimir
+              type: prometheus
+              url: http://mimir-service.monitoring.svc.cluster.local:8080/prometheus
+              access: proxy
+              isDefault: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
