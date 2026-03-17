@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb-local
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: ./backend
+    container_name: backend-app
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=${MONGO_URI}
+    depends_on:
+      - mongodb
+
+  fontend:
+    build: ./frontend
+    container_name: frontend-app
+    ports:
+      - "3030:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:

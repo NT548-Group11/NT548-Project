@@ -1,20 +1,12 @@
-FROM node:18.18-alpine 
+FROM node:18-alpine
 
 WORKDIR /app
-
-RUN addgroup -S gymflex-group && adduser -S gymflex-user -G gymflex-group
-
-COPY package.json package-lock.json ./
-
+COPY package.json package-lock.json ./ 
 RUN npm ci --omit=dev
+COPY --chown=node:node . .
 
-COPY . .
+USER node
 
-RUN chown -R gymflex-user:gymflex-group /app
+EXPOSE 5000
 
-USER gymflex-user
-
-EXPOSE 3002
-
-CMD ["npm", "start"] 
-
+CMD ["node", "src/server.js"]
