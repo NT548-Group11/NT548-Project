@@ -10,7 +10,7 @@ pipeline {
     FULL_BACKEND_IMAGE = "${BACKEND_IMAGE}:${IMAGE_TAG}"
     FULL_FRONTEND_IMAGE = "${FRONTEND_IMAGE}:${IMAGE_TAG}"
 
-    GIT_CREDENTIALS_ID = 'docker-account'
+    DOCKER_CREDENTIALS_ID = 'docker-account'
     }
     
     stages {
@@ -35,11 +35,13 @@ pipeline {
         stage('Push Images') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: "${GIT_CREDENTIALS_ID}",
+                    credentialsId: "${DOCKER_CREDENTIALS_ID}",
                     usernameVariable: 'USER',
                     passwordVariable: 'PASSWD'
                 )]) {
                     sh '''
+                    echo $PASSWD
+                    echo $USER
                     echo $PASSWD | docker login -u $USER --password-stdin
                     docker push $FULL_BACKEND_IMAGE
                     docker push $FULL_FRONTEND_IMAGE
