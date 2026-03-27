@@ -14,14 +14,14 @@ pipeline {
     }
     
     stages {
-        stage('Cleanup') {
-            steps {
-                sh '''
-                docker rmi -f $(docker images -aq) 2>/dev/null || true
-                docker builder prune -af
-                '''
-            }
-        }
+        // stage('Cleanup') {
+        //     steps {
+        //         sh '''
+        //         docker rmi -f $(docker images -aq) 2>/dev/null || true
+        //         docker builder prune -af
+        //         '''
+        //     }
+        // }
         stage('Build Images') {
             steps { 
                 dir('backend') {
