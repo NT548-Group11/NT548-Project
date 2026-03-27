@@ -1,6 +1,6 @@
 # NT548 - Terraform AWS Infrastructure
 
-Dự án Terraform triển khai hạ tầng AWS theo kiểu **module**, bao gồm VPC networking và 4 EC2 instances phục vụ CI/CD pipeline.
+Dự án Terraform triển khai hạ tầng AWS theo kiểu **module**, bao gồm VPC networking và 4 EC2 instances.
 
 ## Kiến trúc hạ tầng
 
