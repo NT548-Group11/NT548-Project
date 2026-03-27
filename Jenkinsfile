@@ -42,6 +42,7 @@ pipeline {
                     sh '''
                     echo $PASSWD
                     echo $USER
+                    
                     echo $PASSWD | docker login -u $USER --password-stdin
                     docker push $FULL_BACKEND_IMAGE
                     docker push $FULL_FRONTEND_IMAGE
