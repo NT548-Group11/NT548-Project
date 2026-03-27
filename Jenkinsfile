@@ -12,16 +12,33 @@ pipeline {
 
     DOCKER_CREDENTIALS_ID = 'docker-account'
     }
+
+    tools {
+        nodejs 'node-18' 
+    }
     
     stages {
-        // stage('Cleanup') {
-        //     steps {
-        //         sh '''
-        //         docker rmi -f $(docker images -aq) 2>/dev/null || true
-        //         docker builder prune -af
-        //         '''
-        //     }
-        // }
+        stages {
+        stage('Cleanup') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('Install & Build') {
+        steps {
+        // Chạy cho Frontend
+            dir('frontend') {
+                echo "Building Frontend..."
+                sh 'npm ci'
+                sh 'npm run build'
+                }
+        // Chạy cho Backend
+            dir('backend') {
+                echo "Installing Backend Dependencies..."
+                sh 'npm ci'
+                }   
+            }
+        }
         stage('Build Images') {
             steps { 
                 dir('backend') {
@@ -45,23 +62,25 @@ pipeline {
                     echo $PASSWD | docker login -u $USER --password-stdin
                     docker push $FULL_BACKEND_IMAGE
                     docker push $FULL_FRONTEND_IMAGE
+                    docker rmi -f $(docker images -aq) 2>/dev/null || true
+                    docker builder prune -af
                     '''
                 }
             }
         }
-        stage('Deploy') {
-            steps {
-                sh '''
-                kubectl set image deployment/gymflex-backend-deployment \
-                gymflex-backend=$FULL_BACKEND_IMAGE -n gymflex
+        // stage('Deploy') {
+        //     steps {
+        //         sh '''
+        //         kubectl set image deployment/gymflex-backend-deployment \
+        //         gymflex-backend=$FULL_BACKEND_IMAGE -n gymflex
 
-                kubectl set image deployment/gymflex-frontend-deployment \
-                gymflex-frontend=$FULL_FRONTEND_IMAGE -n gymflex
+        //         kubectl set image deployment/gymflex-frontend-deployment \
+        //         gymflex-frontend=$FULL_FRONTEND_IMAGE -n gymflex
 
-                kubectl rollout status deployment/gymflex-backend-deployment -n gymflex
-                kubectl rollout status deployment/gymflex-frontend-deployment -n gymflex
-                '''
-            }
-        }
+        //         kubectl rollout status deployment/gymflex-backend-deployment -n gymflex
+        //         kubectl rollout status deployment/gymflex-frontend-deployment -n gymflex
+        //         '''
+        //     }
+        // }
     }
 }
