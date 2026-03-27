@@ -62,7 +62,7 @@ pipeline {
                     echo $PASSWD | docker login -u $USER --password-stdin
                     docker push $FULL_BACKEND_IMAGE
                     docker push $FULL_FRONTEND_IMAGE
-                    docker rmi -f $(docker images -aq) 2>/dev/null || true
+                    docker rmi -f $(docker images -aq) 2>/dev/null || true # Remove all images
                     docker builder prune -af
                     '''
                 }
