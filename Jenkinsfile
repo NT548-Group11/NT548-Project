@@ -50,20 +50,11 @@ pipeline {
         }
         stage('SonarQube Scan') {
             environment {
-                SONAR_SCANNER_HOME = tool 'sonarqube'
+                SONAR_SCANNER_HOME = tool 'sonarqube'  
             }
             steps {
-                withSonarQubeEnv(installationName: 'Sonarqube') {
-                    sh """
-                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                            -Dsonar.projectKey=gymflex \
-                            -Dsonar.projectName=gymflex \
-                            -Dsonar.sources=frontend/src,backend/src \
-                            -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**
-                    """
-                }
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                withSonarQubeEnv(installationName: 'sonarqube') {
+                    sh "${SONAR_SCANNER_HOME}/bin/sonar-scanner"
                 }
             }
         }
