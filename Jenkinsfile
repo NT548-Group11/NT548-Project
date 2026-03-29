@@ -14,10 +14,10 @@ pipeline {
     }
 
     tools {
-        nodejs 'node-18' 
-        //add tool 
+        nodejs 'node-18'
+        //add tool
     }
-    
+
     stages {
         stage('Cleanup') {
             steps {
@@ -32,45 +32,35 @@ pipeline {
         }
 
         stage('Install & Build') {
-        steps {
-        // Chạy cho Frontend
-            sh 'ls -la'   // verify sau checkout
-            dir('frontend') {
-                echo "Building Frontend..."
-                sh 'npm ci'
-                sh 'CI=false npm run build'
-                //sh 'npm run build'
+            steps {
+            // Chạy cho Frontend
+                sh 'ls -la'   // verify sau checkout
+                dir('frontend') {
+                    echo "Building Frontend..."
+                    sh 'npm ci'
+                    sh 'CI=false npm run build'
+                    //sh 'npm run build'
+                    }
+            // Chạy cho Backend
+                dir('backend') {
+                    echo "Installing Backend Dependencies..."
+                    sh 'npm ci'
+                    }
                 }
-        // Chạy cho Backend
-            dir('backend') {
-                echo "Installing Backend Dependencies..."
-                sh 'npm ci'
-                }   
-            }
         }
-        // stage('SonarQube Scan') {
-        //     environment {
-        //         SONAR_SCANNER_HOME = tool 'sonarqube'  
-        //     }
-        //     steps {
-        //         withSonarQubeEnv(installationName: 'sonarqube') {
-        //             sh "${SONAR_SCANNER_HOME}/bin/sonar-scanner"
-        //         }
-        //     }
-        // }
-        node {
-            stage('SCM') {
-                checkout scm
-            }
-            stage('SonarQube Analysis') {
-                def scannerHome = tool 'SonarScanner';
-                withSonarQubeEnv() {
-                sh "${scannerHome}/bin/sonar-scanner"
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'sonarqube'
+                    withSonarQubeEnv('sonarqube') {
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
                 }
             }
         }
         stage('Build Images') {
-            steps { 
+            steps {
                 dir('backend') {
                     sh "docker build -t $FULL_BACKEND_IMAGE ."
                 }
@@ -109,6 +99,7 @@ pipeline {
         //         kubectl rollout status deployment/gymflex-frontend-deployment -n gymflex
         //         '''
         //     }
-        }
-    
+        // }
+    }
+
 }
