@@ -48,13 +48,24 @@ pipeline {
                 }   
             }
         }
-        stage('SonarQube Scan') {
-            environment {
-                SONAR_SCANNER_HOME = tool 'sonarqube'  
+        // stage('SonarQube Scan') {
+        //     environment {
+        //         SONAR_SCANNER_HOME = tool 'sonarqube'  
+        //     }
+        //     steps {
+        //         withSonarQubeEnv(installationName: 'sonarqube') {
+        //             sh "${SONAR_SCANNER_HOME}/bin/sonar-scanner"
+        //         }
+        //     }
+        // }
+        node {
+            stage('SCM') {
+                checkout scm
             }
-            steps {
-                withSonarQubeEnv(installationName: 'sonarqube') {
-                    sh "${SONAR_SCANNER_HOME}/bin/sonar-scanner"
+            stage('SonarQube Analysis') {
+                def scannerHome = tool 'SonarScanner';
+                withSonarQubeEnv() {
+                sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
         }
