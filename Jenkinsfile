@@ -48,6 +48,25 @@ pipeline {
                 }   
             }
         }
+        stage('SonarQube Scan') {
+            environment {
+                SONAR_SCANNER_HOME = tool 'sonarqube'
+            }
+            steps {
+                withSonarQubeEnv('Sonarqube') {
+                    sh """
+                    ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=gymflex \
+                        -Dsonar.projectName=gymflex \
+                        -Dsonar.sources=. \
+                        -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**
+                    """
+                }
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
         stage('Build Images') {
             steps { 
                 dir('backend') {
