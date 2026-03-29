@@ -29,13 +29,13 @@ pipeline {
         // Chạy cho Frontend
             dir('frontend') {
                 echo "Building Frontend..."
-                sh 'npm ci'
+                sh 'npm install'
                 sh 'npm run build'
                 }
         // Chạy cho Backend
             dir('backend') {
                 echo "Installing Backend Dependencies..."
-                sh 'npm ci'
+                sh 'npm install'
                 }   
             }
         }
