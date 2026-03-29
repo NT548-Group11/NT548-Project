@@ -19,7 +19,6 @@ pipeline {
     }
     
     stages {
-        stages {
         stage('Cleanup') {
             steps {
                 cleanWs()
@@ -81,5 +80,5 @@ pipeline {
         //         '''
         //     }
         }
-    }
+    
 }
