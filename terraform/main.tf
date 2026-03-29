@@ -44,7 +44,7 @@ module "jenkins_server" {
   vpc_id        = module.vpc.vpc_id
   private_ip    = var.private_ips[0]
   key_name      = var.key_name
-  volume_size   = 30
+  volume_size   = var.jenkins_agent_volume_size
   ingress_ports = var.jenkins_server_ingress_ports
 }
 
@@ -61,7 +61,7 @@ module "jenkins_agent" {
   vpc_id        = module.vpc.vpc_id
   private_ip    = var.private_ips[1]
   key_name      = var.key_name
-  volume_size   = 20
+  volume_size   = var.jenkins_agent_volume_size
   ingress_ports = var.jenkins_agent_ingress_ports
 }
 
@@ -78,7 +78,7 @@ module "sonarqube" {
   vpc_id        = module.vpc.vpc_id
   private_ip    = var.private_ips[2]
   key_name      = var.key_name
-  volume_size   = 30
+  volume_size   = var.sonarqube_volume_size
   ingress_ports = var.sonarqube_ingress_ports
 }
 
@@ -95,6 +95,6 @@ module "k3s" {
   vpc_id        = module.vpc.vpc_id
   private_ip    = var.private_ips[3]
   key_name      = var.key_name
-  volume_size   = 30
+  volume_size   = var.k3s_volume_size
   ingress_ports = var.k3s_ingress_ports
 }
