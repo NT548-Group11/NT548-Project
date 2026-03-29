@@ -53,13 +53,13 @@ pipeline {
                 SONAR_SCANNER_HOME = tool 'sonarqube'
             }
             steps {
-                withSonarQubeEnv('Sonarqube') {
+                withSonarQubeEnv(installationName: 'Sonarqube') {
                     sh """
-                    ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                        -Dsonar.projectKey=gymflex \
-                        -Dsonar.projectName=gymflex \
-                        -Dsonar.sources=. \
-                        -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**
+                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                            -Dsonar.projectKey=gymflex \
+                            -Dsonar.projectName=gymflex \
+                            -Dsonar.sources=frontend/src,backend/src \
+                            -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**
                     """
                 }
                 timeout(time: 5, unit: 'MINUTES') {
