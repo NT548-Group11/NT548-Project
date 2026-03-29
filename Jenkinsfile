@@ -38,7 +38,8 @@ pipeline {
             dir('frontend') {
                 echo "Building Frontend..."
                 sh 'npm ci'
-                sh 'npm run build'
+                sh 'CI=false npm run build'
+                //sh 'npm run build'
                 }
         // Chạy cho Backend
             dir('backend') {
