@@ -24,18 +24,26 @@ pipeline {
                 cleanWs()
             }
         }
+        stage('Checkout') {
+            steps {
+                checkout scm
+                sh 'ls -la'  // verify: phải thấy frontend/ backend/ ở đây
+            }
+        }
+
         stage('Install & Build') {
         steps {
         // Chạy cho Frontend
+            sh 'ls -la'   // verify sau checkout
             dir('frontend') {
                 echo "Building Frontend..."
-                sh 'npm install'
+                sh 'npm ci'
                 sh 'npm run build'
                 }
         // Chạy cho Backend
             dir('backend') {
                 echo "Installing Backend Dependencies..."
-                sh 'npm install'
+                sh 'npm ci'
                 }   
             }
         }
