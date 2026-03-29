@@ -26,7 +26,6 @@ CI/CD → Build Docker Image → Push to Docker Hub → Deploy to EKS
 
 
 ## 📦 Project Structure
----
 
 
 
