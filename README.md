@@ -17,14 +17,11 @@ CI/CD → Build Docker Image → Push to Docker Hub → Deploy to EKS
 - Frontend: React
 - Containerization: Docker
 - Orchestration: Kubernetes
-- Cloud: Amazon EKS
 - CI/CD: Jenkins
 - Container Registry: Docker Hub
 - Database: MongoDB Atlas
 
 ---
-
-
 ## 📦 Project Structure
 
 
