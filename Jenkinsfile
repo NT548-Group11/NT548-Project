@@ -61,12 +61,13 @@ pipeline {
         }
         stage('Build Images') {
             steps {
-                dir('backend') {
-                    sh "docker build -t $FULL_BACKEND_IMAGE ."
-                }
-                dir('frontend') {
-                    sh "docker build -t $FULL_FRONTEND_IMAGE ."
-                }
+                // Build Backend
+                echo "Building Backend..."
+                sh "docker build --no-cache -t $FULL_BACKEND_IMAGE ./backend"
+
+                // Build Frontend
+                echo "Building Frontend..."
+                sh "docker build --no-cache -t $FULL_FRONTEND_IMAGE ./frontend"
             }
         }
 
@@ -99,10 +100,10 @@ pipeline {
             }
             post {
                 failure {
-                    echo "HAVE CRITICAL ERROR, STOP PIPRLINE"
+                    echo "HAVE CRITICAL ERROR, STOP PIPELINE"
                 }
                 success {
-                    echo "NO HAVE CRITICAL ERROR, CONTINUE PIPRLINE"
+                    echo "NO HAVE CRITICAL ERROR, CONTINUE PIPELINE"
                 }
             }
         }
