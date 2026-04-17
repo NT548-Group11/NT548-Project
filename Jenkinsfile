@@ -69,6 +69,36 @@ pipeline {
                 }
             }
         }
+
+
+                stage('Trivy Scan') {
+            steps {
+                sh '''
+                    echo "========== Scanning Backend Image =========="
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v $HOME/.cache/trivy:/root/.cache/trivy \
+                        aquasec/trivy:latest image \
+                        --exit-code 0 \
+                        --severity HIGH,CRITICAL \
+                        --ignore-unfixed \
+                        --format table \
+                        $FULL_BACKEND_IMAGE
+
+                    echo "========== Scanning Frontend Image =========="
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v $HOME/.cache/trivy:/root/.cache/trivy \
+                        aquasec/trivy:latest image \
+                        --exit-code 0 \
+                        --severity HIGH,CRITICAL \
+                        --ignore-unfixed \
+                        --format table \
+                        $FULL_FRONTEND_IMAGE
+                '''
+            }
+        }
+
         stage('Push Images') {
             steps {
                 withCredentials([usernamePassword(
