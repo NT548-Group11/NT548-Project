@@ -71,7 +71,7 @@ pipeline {
         }
 
 
-                stage('Trivy Scan') {
+        stage('Trivy Scan') {
             steps {
                 sh '''
                     echo "========== Scanning Backend Image =========="
@@ -79,8 +79,8 @@ pipeline {
                         -v /var/run/docker.sock:/var/run/docker.sock \
                         -v $HOME/.cache/trivy:/root/.cache/trivy \
                         aquasec/trivy:latest image \
-                        --exit-code 0 \
-                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        --severity CRITICAL \
                         --ignore-unfixed \
                         --format table \
                         $FULL_BACKEND_IMAGE
@@ -90,12 +90,20 @@ pipeline {
                         -v /var/run/docker.sock:/var/run/docker.sock \
                         -v $HOME/.cache/trivy:/root/.cache/trivy \
                         aquasec/trivy:latest image \
-                        --exit-code 0 \
-                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        --severity CRITICAL \
                         --ignore-unfixed \
                         --format table \
                         $FULL_FRONTEND_IMAGE
                 '''
+            }
+            post {
+                failure {
+                    echo "HAVE CRITICAL ERROR, STOP PIPRLINE"
+                }
+                success {
+                    echo "NO HAVE CRITICAL ERROR, CONTINUE PIPRLINE"
+                }
             }
         }
 
