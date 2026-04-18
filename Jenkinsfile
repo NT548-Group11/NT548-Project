@@ -27,14 +27,14 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                sh 'ls -la'  // verify: phải thấy frontend/ backend/ ở đây
+                //sh 'ls -la'  // verify: phải thấy frontend/ backend/ ở đây
             }
         }
 
         stage('Install & Build') {
             steps {
             // Chạy cho Frontend
-                sh 'ls -la'   // verify sau checkout
+                //sh 'ls -la'   // verify sau checkout
                 dir('frontend') {
                     echo "Building Frontend..."
                     sh 'npm ci'
@@ -139,6 +139,23 @@ pipeline {
         //         '''
         //     }
         // }
+        stage('Update Manifests') {
+            steps {
+                dir('k8s/apps') {
+                    echo "Updating Kubernetes Manifests..."
+                    sed -i 's|image: hmdat1706/nt548-backend:.*|image: $FULL_BACKEND_IMAGE|g' backend.yaml
+                    sed -i 's|image: hmdat1706/nt548-frontend:.*|image: $FULL_FRONTEND_IMAGE|g' frontend.yaml
+                }
+                sh '''
+                # Commit và push changes
+                git config user.name "jenkins"
+                git config user.email "jenkins@gmail.com"
+                git add k8s/apps/backend.yaml k8s/apps/frontend.yaml
+                git commit -m "Update image tags to $IMAGE_TAG"
+                git push origin HEAD:main
+                '''
+            }
+        }
     }
 
 }
