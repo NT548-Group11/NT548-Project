@@ -10,10 +10,6 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'docker-account'
     }
 
-    tools {
-        nodejs 'node-18'
-    }
-
     stages {
         stage('Cleanup') {
             steps {
@@ -115,33 +111,33 @@ pipeline {
         }
 
         stage('Update Manifests') {
-    steps {  
-        // Clone repo manifests
-        sh "git clone https://github.com/NT548-Group11/Manifests.git manifests"
+            steps {  
+                // Clone repo manifests
+                sh "git clone https://github.com/NT548-Group11/Manifests.git manifests"
         
-        dir('manifests') {
-            script {
-                sh """
-                    echo "Updating Kubernetes Manifests..."
-                    sed -i "s|image: noseyug/gymflex-backend:.*|image: ${FULL_BACKEND_IMAGE}|g" apps/backend.yaml
-                    sed -i "s|image: noseyug/gymflex-frontend:.*|image: ${FULL_FRONTEND_IMAGE}|g" apps/frontend.yaml
-                """
+                dir('manifests') {
+                    script {
+                        sh """
+                        echo "Updating Kubernetes Manifests..."
+                        sed -i "s|image: noseyug/gymflex-backend:.*|image: ${FULL_BACKEND_IMAGE}|g" apps/backend.yaml
+                        sed -i "s|image: noseyug/gymflex-frontend:.*|image: ${FULL_FRONTEND_IMAGE}|g" apps/frontend.yaml
+                        """
 
-                // 2. Push lên GitHub sử dụng Credentials
-                withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
-                    sh """
+                    // 2. Push lên GitHub sử dụng Credentials
+                    withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+                        sh """
 
-                        git config user.name "jenkins"
-                        git config user.email "jenkins@gmail.com"
-                        git add apps/backend.yaml apps/frontend.yaml
+                            git config user.name "jenkins"
+                             config user.email "jenkins@gmail.com"
+                            git add apps/backend.yaml apps/frontend.yaml
                         
-                        if ! git diff-index --quiet HEAD; then
-                            git commit -m "Update image tags to ${IMAGE_TAG}"
-                            git push https://${GIT_USER}:${GIT_PASS}@github.com/NT548-Group11/Manifests.git HEAD:main
-                        else
-                            echo "No changes detected, skipping push."
-                        fi
-                    """
+                            if ! git diff-index --quiet HEAD; then
+                                git commit -m "Update image tags to ${IMAGE_TAG}"
+                                git push https://${GIT_USER}:${GIT_PASS}@github.com/NT548-Group11/Manifests.git HEAD:main
+                            else
+                                echo "No changes detected, skipping push."
+                            fi
+                        """
                         }
                     }
                 }
