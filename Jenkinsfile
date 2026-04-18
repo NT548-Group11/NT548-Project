@@ -149,13 +149,15 @@ pipeline {
                     """
                 }
                 sh '''
-                # Commit và push changes
-                git config user.name "jenkins"
-                git config user.email "jenkins@gmail.com"
-                git add k8s/apps/backend.yaml k8s/apps/frontend.yaml
-                git commit -m "Update image tags to $IMAGE_TAG"
-                git push origin HEAD:main
-                '''
+                withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+                    sh """
+                        git config user.name "jenkins"
+                        git config user.email "jenkins@gmail.com"
+                        git add k8s/apps/backend.yaml k8s/apps/frontend.yaml
+                        git commit -m "Update image tags to $IMAGE_TAG"
+                        git push https://${GIT_USER}:${GIT_PASS}@github.com/NT548-Group11/NT548-Project.git HEAD:main
+                    """
+                }
             }
         }
     }
