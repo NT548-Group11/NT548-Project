@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: hmdat1706/nt548-backend:v1
+        image: noseyug/gymflex-backend:v41
         ports:
         - containerPort: 5000
         env:
