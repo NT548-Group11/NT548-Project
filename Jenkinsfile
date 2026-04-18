@@ -112,26 +112,44 @@ pipeline {
         }
 
         stage('Update Manifests') {
-            steps {
-                // Sửa file YAML
-                dir('k8s/apps') {
-                    sh """
-                        echo "Updating Kubernetes Manifests..."
-                        sed -i "s|image: noseyug/gymflex-backend:.*|image: ${FULL_BACKEND_IMAGE}|g" backend.yaml
-                        sed -i "s|image: noseyug/gymflex-frontend:.*|image: ${FULL_FRONTEND_IMAGE}|g" frontend.yaml
-                    """
-                }
-                // Push lên GitHub
+    steps {  
+        // Clone repo manifests
+        sh "git clone https://github.com/NT548-Group11/Manifests.git manifests"
+        
+        dir('manifests') {
+            script {
+                // 1. Cập nhật file YAML (Giả sử file nằm trong thư mục apps/)
+                sh """
+                    echo "Updating Kubernetes Manifests..."
+                    sed -i "s|image: noseyug/gymflex-backend:.*|image: ${FULL_BACKEND_IMAGE}|g" apps/backend.yaml
+                    sed -i "s|image: noseyug/gymflex-frontend:.*|image: ${FULL_FRONTEND_IMAGE}|g" apps/frontend.yaml
+                """
+
+                // 2. Push lên GitHub sử dụng Credentials
                 withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     sh """
+                        # Cấu hình user
                         git config user.name "jenkins"
                         git config user.email "jenkins@gmail.com"
-                        git add k8s/apps/backend.yaml k8s/apps/frontend.yaml
-                        git commit -m "Update image tags to ${IMAGE_TAG}" || echo "No changes to commit"
-                        git push https://${GIT_USER}:${GIT_PASS}@github.com/NT548-Group11/NT548-Project.git HEAD:main
+                        
+                        # Add đúng đường dẫn file đã sửa
+                        git add apps/backend.yaml apps/frontend.yaml
+                        
+                        # Commit nếu có thay đổi
+                        if ! git diff-index --quiet HEAD; then
+                            git commit -m "Update image tags to ${IMAGE_TAG}"
+                            
+                            # Push bằng cách nhúng credentials vào URL
+                            # Lưu ý: Sử dụng biến môi trường giúp ẩn thông tin nhạy cảm tốt hơn
+                            git push https://${GIT_USER}:${GIT_PASS}@github.com/NT548-Group11/Manifests.git HEAD:main
+                        else
+                            echo "No changes detected, skipping push."
+                        fi
                     """
                 }
             }
         }
+    }
+}
     }
 }
