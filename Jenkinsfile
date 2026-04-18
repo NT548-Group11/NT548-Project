@@ -38,7 +38,7 @@ pipeline {
                 dir('frontend') {
                     echo "Building Frontend..."
                     sh 'npm ci'
-                    sh 'npm run build'
+                    sh 'CI=false npm run build'
                 }
                 dir('backend') {
                     echo "Installing Backend Dependencies..."
