@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/NT548-Group11/NT548-Project.git'
+    repoURL: 'https://github.com/NT548-Group11/Manifests.git'
     targetRevision: main
-    path: k8s/apps
+    path: apps
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: devops-dev
@@ -28,9 +28,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/NT548-Group11/NT548-Project.git'
+    repoURL: 'https://github.com/NT548-Group11/Manifests.git'
     targetRevision: main
-    path: k8s/infra
+    path: infra
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
