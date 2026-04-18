@@ -143,8 +143,8 @@ pipeline {
             steps {
                 dir('k8s/apps') {
                     echo "Updating Kubernetes Manifests..."
-                    sed -i 's|image: hmdat1706/nt548-backend:.*|image: $FULL_BACKEND_IMAGE|g' backend.yaml
-                    sed -i 's|image: hmdat1706/nt548-frontend:.*|image: $FULL_FRONTEND_IMAGE|g' frontend.yaml
+                    sed -i "s|image: hmdat1706/nt548-backend:.*|image: $FULL_BACKEND_IMAGE|g" backend.yaml
+                    sed -i "s|image: hmdat1706/nt548-frontend:.*|image: $FULL_FRONTEND_IMAGE|g" frontend.yamll
                 }
                 sh '''
                 # Commit và push changes
