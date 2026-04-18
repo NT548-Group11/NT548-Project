@@ -28,6 +28,9 @@ pipeline {
         }
 
         stage('Install & Build') {
+            tools {
+                nodejs 'node-18'
+            }
             steps {
                 dir('frontend') {
                     echo "Building Frontend..."
@@ -118,7 +121,6 @@ pipeline {
         
         dir('manifests') {
             script {
-                // 1. Cập nhật file YAML (Giả sử file nằm trong thư mục apps/)
                 sh """
                     echo "Updating Kubernetes Manifests..."
                     sed -i "s|image: noseyug/gymflex-backend:.*|image: ${FULL_BACKEND_IMAGE}|g" apps/backend.yaml
@@ -140,10 +142,10 @@ pipeline {
                             echo "No changes detected, skipping push."
                         fi
                     """
+                        }
+                    }
                 }
             }
         }
-    }
-}
     }
 }
