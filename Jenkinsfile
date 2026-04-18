@@ -128,19 +128,13 @@ pipeline {
                 // 2. Push lên GitHub sử dụng Credentials
                 withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     sh """
-                        # Cấu hình user
+
                         git config user.name "jenkins"
                         git config user.email "jenkins@gmail.com"
-                        
-                        # Add đúng đường dẫn file đã sửa
                         git add apps/backend.yaml apps/frontend.yaml
                         
-                        # Commit nếu có thay đổi
                         if ! git diff-index --quiet HEAD; then
                             git commit -m "Update image tags to ${IMAGE_TAG}"
-                            
-                            # Push bằng cách nhúng credentials vào URL
-                            # Lưu ý: Sử dụng biến môi trường giúp ẩn thông tin nhạy cảm tốt hơn
                             git push https://${GIT_USER}:${GIT_PASS}@github.com/NT548-Group11/Manifests.git HEAD:main
                         else
                             echo "No changes detected, skipping push."
