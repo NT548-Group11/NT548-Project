@@ -117,11 +117,10 @@ pipeline {
                 dir('k8s/apps') {
                     sh """
                         echo "Updating Kubernetes Manifests..."
-                        sed -i "s|image: hmdat1706/nt548-backend:.*|image: ${FULL_BACKEND_IMAGE}|g" backend.yaml
-                        sed -i "s|image: hmdat1706/nt548-frontend:.*|image: ${FULL_FRONTEND_IMAGE}|g" frontend.yaml
+                        sed -i "s|image: noseyug/gymflex-backend:.*|image: ${FULL_BACKEND_IMAGE}|g" backend.yaml
+                        sed -i "s|image: noseyug/gymflex-frontend:.*|image: ${FULL_FRONTEND_IMAGE}|g" frontend.yaml
                     """
                 }
-                
                 // Push lên GitHub
                 withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     sh """
