@@ -146,7 +146,7 @@ pipeline {
                                 git commit -m "cd: update image tags to ${IMAGE_TAG}"
                                 git push https://${USER}:${PASS}@github.com/NT548-Group11/Manifests.git HEAD:main
                             else
-                                echo "No changes detected, skipping push."
+                                echo "No changes detected, skipping push..."
                             fi
                         """
                     }
