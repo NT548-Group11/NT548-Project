@@ -58,9 +58,12 @@ pipeline {
         //     }
         // }
         stage('SonarQube Analysis') {
+            tools {
+                nodejs 'node-18'
+            }
             steps {
                 script {
-                    sh 'cd frontend && npm test -- --coverage'
+                    sh 'cd frontend && npm test -- --coverage --watchAll=false'
                     sh 'cd backend && npm test -- --coverage'
 
                     def scannerHome = tool 'sonarqube'
