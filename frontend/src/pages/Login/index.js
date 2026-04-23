@@ -1,27 +1,28 @@
-import { Row, Col, Button, Form, Input, notification,Flex } from "antd";
+import { Row, Col, Button, Form, Input, notification, Flex } from "antd";
 import { login } from "../../services/usersServices";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { checkLogin } from "../../actions/login";
 import "../../styles/Login.scss";
 function Login() {
+  const concac = "242397469";
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const onFinish = async (e) => {
     try {
       const response = await login(e.username, e.password);
       console.log(response);
-        if(!response.token){
-          throw new Error("Login failed: No token received");
-        }
-        document.cookie = `token=${response.token}; path=/; max-age=${60 * 60};`;
-        notification.success({
-          message: "Login successful",
-          description: "Welcome back!",
-          className: "custom-notification__success",
-          placement: "topRight",
-          duration: 1,
-        });
+      if (!response.token) {
+        throw new Error("Login failed: No token received");
+      }
+      document.cookie = `token=${response.token}; path=/; max-age=${60 * 60};`;
+      notification.success({
+        message: "Login successful",
+        description: "Welcome back!",
+        className: "custom-notification__success",
+        placement: "topRight",
+        duration: 1,
+      });
 
       dispatch(checkLogin(true));
       if (response.role === "admin") {
@@ -49,7 +50,11 @@ function Login() {
           <Row gutter={[20, 30]}>
             <Col span={12} className="login-header">
               <h1> Chào mừng đến với GymFlex</h1>
-              <p> Đăng nhập để truy cập vào các chương trình tập luyện, theo dõi tiến độ và nhận hỗ trợ từ cộng đồng Gym Việt.</p>
+              <p>
+                {" "}
+                Đăng nhập để truy cập vào các chương trình tập luyện, theo dõi
+                tiến độ và nhận hỗ trợ từ cộng đồng Gym Việt.
+              </p>
             </Col>
             <Col span={12} className="login-form">
               <h1>Đăng nhập</h1>
@@ -74,7 +79,7 @@ function Login() {
                   <Input.Password />
                 </Form.Item>
                 <Flex justify="flex-end" align="center">
-                  <NavLink to="/forgot" >Forgot password ?</NavLink>
+                  <NavLink to="/forgot">Forgot password ?</NavLink>
                 </Flex>
 
                 <Form.Item className="login-form__button">
@@ -83,7 +88,13 @@ function Login() {
                   </Button>
                 </Form.Item>
 
-                <div> Chưa có tài khoản?<NavLink to='/register'><b>Đăng kí</b></NavLink></div>
+                <div>
+                  {" "}
+                  Chưa có tài khoản?
+                  <NavLink to="/register">
+                    <b>Đăng kí</b>
+                  </NavLink>
+                </div>
               </Form>
             </Col>
           </Row>
