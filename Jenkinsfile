@@ -47,25 +47,18 @@ pipeline {
             }
         }
 
-        // stage('SonarQube Analysis') {
-        //     steps {
-        //         script {
-        //             def scannerHome = tool 'sonarqube'
-        //             withSonarQubeEnv('sonarqube') {
-        //                 sh "${scannerHome}/bin/sonar-scanner"
-        //             }
-        //         }
-        //     }
-        // }
         stage('SonarQube Analysis') {
             tools {
                 nodejs 'node-18'
             }
             steps {
+                dir('frontend'){
+                    sh 'CI=true npm run test:coverage || true'
+                }
+                dir('backend'){
+                    sh 'CI=true npm run test:coverage || true'
+                }
                 script {
-                    sh 'cd frontend && CI=true npm run test:coverage || true'
-                    sh 'cd backend && CI=true npm run test:coverage || true'
-
                     def scannerHome = tool 'sonarqube'
                     withSonarQubeEnv('sonarqube') {
                         sh "${scannerHome}/bin/sonar-scanner"
