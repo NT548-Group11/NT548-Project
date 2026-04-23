@@ -64,6 +64,8 @@ pipeline {
             steps {
                 script {
                     sh 'cd frontend && CI=true npm run test:coverage || true'
+                    sh 'cd backend && CI=true npm run test:coverage || true'
+
                     def scannerHome = tool 'sonarqube'
                     withSonarQubeEnv('sonarqube') {
                         sh "${scannerHome}/bin/sonar-scanner"
