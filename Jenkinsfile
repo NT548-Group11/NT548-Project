@@ -75,12 +75,21 @@ pipeline {
             }
         }
 
+        // stage('Build Images') {
+        //     steps {
+        //         echo "Building Backend..."
+        //         sh "docker build -t ${FULL_BACKEND_IMAGE} ./backend"
+        //         echo "Building Frontend..."
+        //         sh "docker build -t ${FULL_FRONTEND_IMAGE} ./frontend"
+        //     }
+        // }
         stage('Build Images') {
             steps {
                 echo "Building Backend..."
-                sh "docker build -t ${FULL_BACKEND_IMAGE} ./backend"
+                sh "docker build --no-cache -t ${FULL_BACKEND_IMAGE} ./backend"
+
                 echo "Building Frontend..."
-                sh "docker build -t ${FULL_FRONTEND_IMAGE} ./frontend"
+                sh "docker build --no-cache -t ${FULL_FRONTEND_IMAGE} ./frontend"
             }
         }
 
