@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DeleteOutlined } from "@ant-design/icons";
 import { getCategories } from "../../services/categoryService";
 import {
@@ -11,12 +11,11 @@ import {
   Col,
   message,
   Select,
-  Modal,
 } from "antd";
 import { createProduct } from "../../services/productsService";
 
 const { TextArea } = Input;
-const aaa = 111;
+const test = 366;
 
 const AddNewProducts = () => {
   const navigate = useNavigate();
@@ -236,7 +235,7 @@ const AddNewProducts = () => {
             <div style={{ marginTop: 20 }}>
               <Row gutter={[16, 16]}>
                 {imageUrls.map((url, index) => (
-                  <Col key={index}>
+                  <Col key={url}>
                     <div
                       style={{
                         position: "relative",

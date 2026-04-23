@@ -5,7 +5,6 @@ import { useDispatch } from "react-redux";
 import { checkLogin } from "../../actions/login";
 import "../../styles/Login.scss";
 function Login() {
-  const concac = "242397469";
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const onFinish = async (e) => {
