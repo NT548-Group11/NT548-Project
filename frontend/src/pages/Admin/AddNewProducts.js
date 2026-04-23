@@ -60,7 +60,7 @@ const AddNewProducts = () => {
     try {
       const submitData = {
         ...values,
-        description: values.description.filter((desc) => !!desc), // loại bỏ mô tả rỗng
+        description: (values.description || []).filter((desc) => !!desc), // loại bỏ mô tả rỗng
         category: values.category,
         images: imageUrls,
       };
