@@ -84,38 +84,119 @@ pipeline {
             }
         }
 
+        // stage('Trivy Scan') {
+        //     steps {
+        //         sh """
+        //             echo "========== Scanning Backend Image =========="
+        //             docker run --rm \\
+        //                 -v /var/run/docker.sock:/var/run/docker.sock \\
+        //                 -v /var/cache/trivy:/root/.cache/trivy \\
+        //                 aquasec/trivy:latest image \\
+        //                 --exit-code 1 \\
+        //                 --severity CRITICAL \\
+        //                 --ignore-unfixed \\
+        //                 --format table \\
+        //                 ${FULL_BACKEND_IMAGE}
+
+        //             echo "========== Scanning Frontend Image =========="
+        //             docker run --rm \\
+        //                 -v /var/run/docker.sock:/var/run/docker.sock \\
+        //                 -v /var/cache/trivy:/root/.cache/trivy \\
+        //                 aquasec/trivy:latest image \\
+        //                 --exit-code 1 \\
+        //                 --severity CRITICAL \\
+        //                 --ignore-unfixed \\
+        //                 --format table \\
+        //                 ${FULL_FRONTEND_IMAGE}
+        //         """
+        //     }
+        //     post {
+        //         failure { echo "CRITICAL VULNERABILITIES FOUND - STOPPING PIPELINE" }
+        //         success { echo "NO CRITICAL VULNERABILITIES FOUND - CONTINUING PIPELINE" }
+        //     }
+        // }
         stage('Trivy Scan') {
             steps {
                 sh """
+                    mkdir -p ${WORKSPACE}/trivy-reports
+
                     echo "========== Scanning Backend Image =========="
-                    docker run --rm \\
-                        -v /var/run/docker.sock:/var/run/docker.sock \\
-                        -v /var/cache/trivy:/root/.cache/trivy \\
-                        aquasec/trivy:latest image \\
-                        --exit-code 1 \\
-                        --severity CRITICAL \\
-                        --ignore-unfixed \\
-                        --format table \\
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v /var/cache/trivy:/root/.cache/trivy \
+                        -v ${WORKSPACE}/trivy-reports:/reports \
+                        aquasec/trivy:latest image \
+                        --exit-code 1 \
+                        --severity CRITICAL,HIGH \
+                        --ignore-unfixed \
+                        --format json \
+                        --output /reports/backend-${BUILD_NUMBER}.json \
                         ${FULL_BACKEND_IMAGE}
 
                     echo "========== Scanning Frontend Image =========="
-                    docker run --rm \\
-                        -v /var/run/docker.sock:/var/run/docker.sock \\
-                        -v /var/cache/trivy:/root/.cache/trivy \\
-                        aquasec/trivy:latest image \\
-                        --exit-code 1 \\
-                        --severity CRITICAL \\
-                        --ignore-unfixed \\
-                        --format table \\
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v /var/cache/trivy:/root/.cache/trivy \
+                        -v ${WORKSPACE}/trivy-reports:/reports \
+                        aquasec/trivy:latest image \
+                        --exit-code 1 \
+                        --severity CRITICAL,HIGH \
+                        --ignore-unfixed \
+                        --format json \
+                        --output /reports/frontend-${BUILD_NUMBER}.json \
                         ${FULL_FRONTEND_IMAGE}
+
+                    echo "========== Scanning Backend Dockerfile =========="
+                    docker run --rm \
+                        -v ${WORKSPACE}/backend:/project \
+                        -v /var/cache/trivy:/root/.cache/trivy \
+                        aquasec/trivy:latest config \
+                        --exit-code 0 \
+                        --severity CRITICAL,HIGH \
+                        --format json \
+                        --output /reports/backend-dockerfile-${BUILD_NUMBER}.json \  
+                        /project
+
+                    echo "========== Scanning Frontend Dockerfile =========="
+                    docker run --rm \
+                        -v ${WORKSPACE}/frontend:/project \
+                        -v /var/cache/trivy:/root/.cache/trivy \
+                        aquasec/trivy:latest config \
+                        --exit-code 0 \
+                        --severity CRITICAL,HIGH \
+                        --format json \
+                        --output /reports/frontend-dockerfile-${BUILD_NUMBER}.json \
+                        /project
+
+                    echo "========== Scanning Kubernetes Manifests =========="
+                    docker run --rm \
+                        -v ${WORKSPACE}/k8s:/project \
+                        -v /var/cache/trivy:/root/.cache/trivy \
+                        aquasec/trivy:latest config \
+                        --exit-code 0 \
+                        --severity CRITICAL,HIGH \
+                        --format json \
+                        --output /reports/k8s-manifests-${BUILD_NUMBER}.json \
+                        /project
                 """
             }
             post {
-                failure { echo "CRITICAL VULNERABILITIES FOUND - STOPPING PIPELINE" }
-                success { echo "NO CRITICAL VULNERABILITIES FOUND - CONTINUING PIPELINE" }
+                always {
+                    archiveArtifacts(
+                        artifacts: 'trivy-reports/*.json',
+                        allowEmptyArchive: true,
+                        fingerprint: true
+                    )
+                }
+                failure {
+                    echo "CRITICAL/HIGH VULNERABILITIES FOUND - STOPPING PIPELINE"
+                    echo "Check reports at: ${WORKSPACE}/trivy-reports/"
+                }
+                success {
+                    echo "NO CRITICAL/HIGH VULNERABILITIES FOUND - CONTINUING PIPELINE"
+                }
             }
         }
-
         stage('Push Images') {
             steps {
                 withCredentials([usernamePassword(
