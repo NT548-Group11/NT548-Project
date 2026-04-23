@@ -46,6 +46,6 @@
     ]
   },
   "overrides": {
-    "picomatch": "4.0.4"
+    "picomatch": "3.0.2"
   }
 }
