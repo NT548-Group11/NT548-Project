@@ -16,7 +16,7 @@ pipeline {
         DOCKER_CREDENTIALS_ID = 'docker-account'
         GITHUB_CREDENTIALS_ID = 'github-id'
         APPROVER_EMAIL = '23521404@gm.uit.edu.vn'   
-        APPROVER_USER  = 'Manh Tan'    
+        APPROVER_USER  = 'tanpm'    
     }
 
     stages {
@@ -135,13 +135,27 @@ pipeline {
             }
         }
 
+        stage('Push Images') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: "${DOCKER_CREDENTIALS_ID}",
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASSWD'
+                )]) {
+                    sh '''
+                        echo $PASSWD | docker login -u $USER --password-stdin
+                        docker push $FULL_BACKEND_IMAGE
+                        docker push $FULL_FRONTEND_IMAGE
+                    '''
+                }
+            }
+        }
 
-        
         stage('Approval Before Deploy') {
             steps {
                 script {
                     try {
-                        emailext (
+                        emailext(
                             subject: "[APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                             body: """
                                 <h3>Pipeline đang chờ phê duyệt để deploy</h3>
@@ -163,29 +177,14 @@ pipeline {
                     }
 
                     timeout(time: 30, unit: 'MINUTES') {
-                        input(
+                        def approval = input(
                             message: "Deploy to production?\n\nImage tag: ${IMAGE_TAG}",
                             ok: "Deploy",
-                            submitter: "${APPROVER_USER}"
+                            submitter: "${APPROVER_USER}",
+                            submitterParameter: 'APPROVED_BY'
                         )
+                        echo "Deploy approved by: ${approval}"
                     }
-                }
-            }
-        }
-
-
-        stage('Push Images') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: "${DOCKER_CREDENTIALS_ID}",
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASSWD'
-                )]) {
-                    sh '''
-                        echo $PASSWD | docker login -u $USER --password-stdin
-                        docker push $FULL_BACKEND_IMAGE
-                        docker push $FULL_FRONTEND_IMAGE
-                    '''
                 }
             }
         }
