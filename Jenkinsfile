@@ -65,10 +65,15 @@ pipeline {
                         sh 'ls -la coverage/ || echo "NO COVERAGE FOLDER"'
                         sh 'cat coverage/lcov.info | head -20 || echo "NO LCOV FILE"'
                     }
+                    // dir('backend'){
+                    //     sh 'CI=true npm run test:coverage || true'
+                    //     sh 'ls -la coverage/ || echo "NO COVERAGE FOLDER"'
+                    //     sh 'cat coverage/lcov.info | head -20 || echo "NO LCOV FILE"'
+                    // }
                     dir('backend'){
-                        sh 'CI=true npm run test:coverage || true'
+                        sh 'cat package.json | grep -A 5 "scripts"'  // Xem có script không
+                        sh 'CI=true npm run test:coverage'             // BỎ || true để thấy lỗi
                         sh 'ls -la coverage/ || echo "NO COVERAGE FOLDER"'
-                        sh 'cat coverage/lcov.info | head -20 || echo "NO LCOV FILE"'
                     }
                 script {
                     def scannerHome = tool 'sonarqube'
@@ -116,7 +121,9 @@ pipeline {
                     docker run --rm \
                         -v /var/run/docker.sock:/var/run/docker.sock \
                         -v /var/cache/trivy:/root/.cache/trivy \
+                        -v \$(pwd)/.trivyignore:/.trivyignore \
                         aquasec/trivy:latest image \
+                        --ignorefile /.trivyignore \
                         --exit-code 1 \
                         --severity CRITICAL,HIGH \
                         --ignore-unfixed \
@@ -127,7 +134,9 @@ pipeline {
                     docker run --rm \
                         -v /var/run/docker.sock:/var/run/docker.sock \
                         -v /var/cache/trivy:/root/.cache/trivy \
+                        -v \$(pwd)/.trivyignore:/.trivyignore \
                         aquasec/trivy:latest image \
+                        --ignorefile /.trivyignore \
                         --exit-code 1 \
                         --severity CRITICAL,HIGH \
                         --ignore-unfixed \
