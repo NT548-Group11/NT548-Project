@@ -15,6 +15,8 @@ pipeline {
         FULL_FRONTEND_IMAGE = "${FRONTEND_IMAGE}:${IMAGE_TAG}"
         DOCKER_CREDENTIALS_ID = 'docker-account'
         GITHUB_CREDENTIALS_ID = 'github-id'
+        APPROVER_EMAIL = '23521404@gm.uit.edu.vn'   
+        APPROVER_USER  = 'Manh Tan'    
     }
 
     stages {
@@ -52,12 +54,22 @@ pipeline {
                 nodejs 'node-18'
             }
             steps {
-                dir('frontend'){
-                    sh 'CI=true npm run test:coverage || true'
-                }
-                dir('backend'){
-                    sh 'CI=true npm run test:coverage || true'
-                }
+                // dir('frontend'){
+                //     sh 'CI=true npm run test:coverage'
+                // }
+                // dir('backend'){
+                //     sh 'CI=true npm run test:coverage'
+                // }
+                    dir('frontend'){
+                        sh 'CI=true npm run test:coverage || true'
+                        sh 'ls -la coverage/ || echo "NO COVERAGE FOLDER"'
+                        sh 'cat coverage/lcov.info | head -20 || echo "NO LCOV FILE"'
+                    }
+                    dir('backend'){
+                        sh 'CI=true npm run test:coverage || true'
+                        sh 'ls -la coverage/ || echo "NO COVERAGE FOLDER"'
+                        sh 'cat coverage/lcov.info | head -20 || echo "NO LCOV FILE"'
+                    }
                 script {
                     def scannerHome = tool 'sonarqube'
                     withSonarQubeEnv('sonarqube') {
@@ -98,6 +110,8 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 sh """
+                    set -e
+
                     echo "========== Scanning Backend Image =========="
                     docker run --rm \
                         -v /var/run/docker.sock:/var/run/docker.sock \
@@ -126,6 +140,47 @@ pipeline {
                 success { echo "NO CRITICAL/HIGH VULNERABILITIES FOUND - CONTINUING PIPELINE" }
             }
         }
+
+
+        
+        stage('Approval Before Deploy') {
+            steps {
+                script {
+                    // Gửi email thông báo cho approver
+                    try {
+                        emailext (
+                            subject: "[APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                            body: """
+                                <h3>Pipeline đang chờ phê duyệt để deploy</h3>
+                                <ul>
+                                    <li><b>Job:</b> ${env.JOB_NAME}</li>
+                                    <li><b>Build:</b> #${env.BUILD_NUMBER}</li>
+                                    <li><b>Image Tag:</b> ${IMAGE_TAG}</li>
+                                    <li><b>Backend Image:</b> ${FULL_BACKEND_IMAGE}</li>
+                                    <li><b>Frontend Image:</b> ${FULL_FRONTEND_IMAGE}</li>
+                                </ul>
+                                <p><b>Approve tại:</b> <a href="${env.BUILD_URL}input">${env.BUILD_URL}input</a></p>
+                                <p>Console log: <a href="${env.BUILD_URL}console">${env.BUILD_URL}console</a></p>
+                            """,
+                            mimeType: 'text/html',
+                            to: "${APPROVER_EMAIL}"
+                        )
+                    } catch (err) {
+                        echo "WARNING: Không gửi được email thông báo: ${err.getMessage()}"
+                    }
+
+                    timeout(time: 30, unit: 'MINUTES') {
+                        input(
+                            message: "Deploy to production?\n\nImage tag: ${IMAGE_TAG}",
+                            ok: "Deploy",
+                            submitter: "${APPROVER_USER}"
+                        )
+                    }
+                }
+            }
+        }
+
+
         stage('Push Images') {
             steps {
                 withCredentials([usernamePassword(

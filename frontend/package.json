@@ -70,5 +70,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "picomatch": "^2.3.2"
   }
 }
