@@ -54,27 +54,12 @@ pipeline {
                 nodejs 'node-18'
             }
             steps {
-                // dir('frontend'){
-                //     sh 'CI=true npm run test:coverage'
-                // }
-                // dir('backend'){
-                //     sh 'CI=true npm run test:coverage'
-                // }
-                    dir('frontend'){
-                        sh 'CI=true npm run test:coverage || true'
-                        sh 'ls -la coverage/ || echo "NO COVERAGE FOLDER"'
-                        sh 'cat coverage/lcov.info | head -20 || echo "NO LCOV FILE"'
-                    }
-                    // dir('backend'){
-                    //     sh 'CI=true npm run test:coverage || true'
-                    //     sh 'ls -la coverage/ || echo "NO COVERAGE FOLDER"'
-                    //     sh 'cat coverage/lcov.info | head -20 || echo "NO LCOV FILE"'
-                    // }
-                    dir('backend'){
-                        sh 'cat package.json | grep -A 5 "scripts"'  // Xem có script không
-                        sh 'CI=true npm run test:coverage'             // BỎ || true để thấy lỗi
-                        sh 'ls -la coverage/ || echo "NO COVERAGE FOLDER"'
-                    }
+                dir('frontend'){
+                    sh 'CI=true npm run test:coverage'
+                }
+                dir('backend'){
+                    sh 'CI=true npm run test:coverage'           
+                }
                 script {
                     def scannerHome = tool 'sonarqube'
                     withSonarQubeEnv('sonarqube') {
@@ -155,7 +140,6 @@ pipeline {
         stage('Approval Before Deploy') {
             steps {
                 script {
-                    // Gửi email thông báo cho approver
                     try {
                         emailext (
                             subject: "[APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
