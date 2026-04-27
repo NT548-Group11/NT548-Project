@@ -149,18 +149,56 @@ pipeline {
                 script {
                     try {
                         emailext(
-                            subject: "[APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                            subject: "🚀 [APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                            from: "GymFlex CI/CD <manhtan06120@gmail.com>",
+                            replyTo: "noreply@gymflex.com",
                             body: """
-                                <h3>Pipeline đang chờ phê duyệt để deploy</h3>
-                                <ul>
-                                    <li><b>Job:</b> ${env.JOB_NAME}</li>
-                                    <li><b>Build:</b> #${env.BUILD_NUMBER}</li>
-                                    <li><b>Image Tag:</b> ${IMAGE_TAG}</li>
-                                    <li><b>Backend Image:</b> ${FULL_BACKEND_IMAGE}</li>
-                                    <li><b>Frontend Image:</b> ${FULL_FRONTEND_IMAGE}</li>
-                                </ul>
-                                <p><b>Approve tại:</b> <a href="${env.BUILD_URL}input">${env.BUILD_URL}input</a></p>
-                                <p>Console log: <a href="${env.BUILD_URL}console">${env.BUILD_URL}console</a></p>
+                                <div style="font-family: -apple-system, Segoe UI, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+                                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 24px;">
+                                        <h2 style="margin: 0;">🚀 Deployment Approval Required</h2>
+                                        <p style="margin: 8px 0 0; opacity: 0.9;">Pipeline đang chờ phê duyệt để deploy lên production</p>
+                                    </div>
+                                    
+                                    <div style="padding: 24px; background: #fafafa;">
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <tr>
+                                                <td style="padding: 8px 0; color: #666;"><b>📦 Job:</b></td>
+                                                <td style="padding: 8px 0;">${env.JOB_NAME}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; color: #666;"><b>🔢 Build:</b></td>
+                                                <td style="padding: 8px 0;">#${env.BUILD_NUMBER}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; color: #666;"><b>🏷️ Tag:</b></td>
+                                                <td style="padding: 8px 0;"><code style="background:#eee; padding:2px 6px; border-radius:3px;">${IMAGE_TAG}</code></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; color: #666;"><b>🐳 Backend:</b></td>
+                                                <td style="padding: 8px 0; font-family: monospace; font-size: 13px;">${FULL_BACKEND_IMAGE}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 8px 0; color: #666;"><b>🎨 Frontend:</b></td>
+                                                <td style="padding: 8px 0; font-family: monospace; font-size: 13px;">${FULL_FRONTEND_IMAGE}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    
+                                    <div style="padding: 24px; text-align: center; background: white;">
+                                        <a href="${env.BUILD_URL}input" 
+                                        style="display: inline-block; background: #28a745; color: white; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                                            ✅ Approve Deployment
+                                        </a>
+                                        <p style="margin: 16px 0 0; font-size: 13px; color: #888;">
+                                            Hoặc xem chi tiết tại 
+                                            <a href="${env.BUILD_URL}console">Console Log</a>
+                                        </p>
+                                    </div>
+                                    
+                                    <div style="padding: 12px 24px; background: #f0f0f0; font-size: 11px; color: #999; text-align: center;">
+                                        Sent by Jenkins CI/CD • GymFlex Project
+                                    </div>
+                                </div>
                             """,
                             mimeType: 'text/html',
                             to: "${APPROVER_EMAIL}"
@@ -181,55 +219,6 @@ pipeline {
                 }
             }
         }
-
-//     stage('Update Manifests') {
-//         steps {
-//             withCredentials([usernamePassword(
-//                 credentialsId: "${GITHUB_CREDENTIALS_ID}",
-//                 usernameVariable: 'USER',
-//                 passwordVariable: 'PASS'
-//             )]) {
-//                 sh "git clone https://${USER}:${PASS}@github.com/NT548-Group11/Manifests.git manifests"
-
-//                 dir('manifests') {
-//                     sh """
-//                         echo "Updating Kubernetes Manifests..."
-//                         sed -i "s|image: noseyug/gymflex-backend:.*|image: ${FULL_BACKEND_IMAGE}|g" apps/backend.yaml
-//                         sed -i "s|image: noseyug/gymflex-frontend:.*|image: ${FULL_FRONTEND_IMAGE}|g" apps/frontend.yaml
-
-//                         git config user.name "jenkins"
-//                         git config user.email "jenkins@noreply.com"
-//                         git add apps/backend.yaml apps/frontend.yaml
-
-//                         if ! git diff-index --quiet HEAD; then
-//                             git commit -m "cd: update image tags to ${IMAGE_TAG}"
-//                             git push https://${USER}:${PASS}@github.com/NT548-Group11/Manifests.git HEAD:main
-//                         else
-//                             echo "No changes detected, skipping push..."
-//                         fi
-//                     """
-//                 }
-//             }
-//         }
-//     }
-// }
-
-    // post {
-    //     always {
-    //         sh """
-    //             docker rmi ${FULL_BACKEND_IMAGE} || true
-    //             docker rmi ${FULL_FRONTEND_IMAGE} || true
-    //             docker logout || true
-    //         """
-    //         cleanWs()
-    //     }
-    //     failure {
-    //         echo "Pipeline FAILED - Build ${BUILD_ID}"
-    //     }
-    //     success {
-    //         echo "Pipeline SUCCESS - Image tag: ${IMAGE_TAG}"
-    //     }
-    // }
         stage('Update manifests repo') {
             steps {
                 withCredentials([
