@@ -69,119 +69,118 @@ pipeline {
                 }
             }
         }
-    }
 
-    stage('Quality Gate') {   
-        steps {
-            timeout(time: 15, unit: 'MINUTES') {
-                waitForQualityGate abortPipeline: true
-            }
-        }
-    }
-
-    stage('Build Images') {
-        steps {
-            echo "Building Backend..."
-            sh "docker build -t ${FULL_BACKEND_IMAGE} ./backend"
-
-            echo "Building Frontend..."
-            sh "docker build -t ${FULL_FRONTEND_IMAGE} ./frontend"
-        }
-    }
-
-
-
-    stage('Trivy Scan') {
-        steps {
-            sh """
-                set -e
-
-                echo "========== Scanning Backend Image =========="
-                docker run --rm \
-                    -v /var/run/docker.sock:/var/run/docker.sock \
-                    -v /var/cache/trivy:/root/.cache/trivy \
-                    -v \$(pwd)/.trivyignore:/.trivyignore \
-                    aquasec/trivy:latest image \
-                    --ignorefile /.trivyignore \
-                    --exit-code 1 \
-                    --severity CRITICAL,HIGH \
-                    --ignore-unfixed \
-                    --format table \
-                    ${FULL_BACKEND_IMAGE}
-
-                echo "========== Scanning Frontend Image =========="
-                docker run --rm \
-                    -v /var/run/docker.sock:/var/run/docker.sock \
-                    -v /var/cache/trivy:/root/.cache/trivy \
-                    -v \$(pwd)/.trivyignore:/.trivyignore \
-                    aquasec/trivy:latest image \
-                    --ignorefile /.trivyignore \
-                    --exit-code 1 \
-                    --severity CRITICAL,HIGH \
-                    --ignore-unfixed \
-                    --format table \
-                    ${FULL_FRONTEND_IMAGE}
-            """
-        }
-        post {
-            failure { echo "CRITICAL/HIGH VULNERABILITIES FOUND - STOPPING PIPELINE" }
-            success { echo "NO CRITICAL/HIGH VULNERABILITIES FOUND - CONTINUING PIPELINE" }
-        }
-    }
-
-    stage('Push Images') {
-        steps {
-            withCredentials([usernamePassword(
-                credentialsId: "${DOCKER_CREDENTIALS_ID}",
-                usernameVariable: 'USER',
-                passwordVariable: 'PASSWD'
-            )]) {
-                sh '''
-                    echo $PASSWD | docker login -u $USER --password-stdin
-                    docker push $FULL_BACKEND_IMAGE
-                    docker push $FULL_FRONTEND_IMAGE
-                '''
-            }
-        }
-    }
-
-    stage('Approval Before Deploy') {
-        steps {
-            script {
-                try {
-                    emailext(
-                        subject: "[APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: """
-                            <h3>Pipeline đang chờ phê duyệt để deploy</h3>
-                            <ul>
-                                <li><b>Job:</b> ${env.JOB_NAME}</li>
-                                <li><b>Build:</b> #${env.BUILD_NUMBER}</li>
-                                <li><b>Image Tag:</b> ${IMAGE_TAG}</li>
-                                <li><b>Backend Image:</b> ${FULL_BACKEND_IMAGE}</li>
-                                <li><b>Frontend Image:</b> ${FULL_FRONTEND_IMAGE}</li>
-                            </ul>
-                            <p><b>Approve tại:</b> <a href="${env.BUILD_URL}input">${env.BUILD_URL}input</a></p>
-                            <p>Console log: <a href="${env.BUILD_URL}console">${env.BUILD_URL}console</a></p>
-                        """,
-                        mimeType: 'text/html',
-                        to: "${APPROVER_EMAIL}"
-                    )
-                } catch (err) {
-                    echo "WARNING: Không gửi được email thông báo: ${err.getMessage()}"
-                }
-
-                timeout(time: 30, unit: 'MINUTES') {
-                    def approval = input(
-                        message: "Deploy to production?\n\nImage tag: ${IMAGE_TAG}",
-                        ok: "Deploy",
-                        submitter: "${APPROVER_USER}",
-                        submitterParameter: 'APPROVED_BY'
-                    )
-                    echo "Deploy approved by: ${approval}"
+        stage('Quality Gate') {   
+            steps {
+                timeout(time: 15, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
-    }
+
+        stage('Build Images') {
+            steps {
+                echo "Building Backend..."
+                sh "docker build -t ${FULL_BACKEND_IMAGE} ./backend"
+
+                echo "Building Frontend..."
+                sh "docker build -t ${FULL_FRONTEND_IMAGE} ./frontend"
+            }
+        }
+
+
+
+        stage('Trivy Scan') {
+            steps {
+                sh """
+                    set -e
+
+                    echo "========== Scanning Backend Image =========="
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v /var/cache/trivy:/root/.cache/trivy \
+                        -v \$(pwd)/.trivyignore:/.trivyignore \
+                        aquasec/trivy:latest image \
+                        --ignorefile /.trivyignore \
+                        --exit-code 1 \
+                        --severity CRITICAL,HIGH \
+                        --ignore-unfixed \
+                        --format table \
+                        ${FULL_BACKEND_IMAGE}
+
+                    echo "========== Scanning Frontend Image =========="
+                    docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v /var/cache/trivy:/root/.cache/trivy \
+                        -v \$(pwd)/.trivyignore:/.trivyignore \
+                        aquasec/trivy:latest image \
+                        --ignorefile /.trivyignore \
+                        --exit-code 1 \
+                        --severity CRITICAL,HIGH \
+                        --ignore-unfixed \
+                        --format table \
+                        ${FULL_FRONTEND_IMAGE}
+                """
+            }
+            post {
+                failure { echo "CRITICAL/HIGH VULNERABILITIES FOUND - STOPPING PIPELINE" }
+                success { echo "NO CRITICAL/HIGH VULNERABILITIES FOUND - CONTINUING PIPELINE" }
+            }
+        }
+
+        stage('Push Images') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: "${DOCKER_CREDENTIALS_ID}",
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASSWD'
+                )]) {
+                    sh '''
+                        echo $PASSWD | docker login -u $USER --password-stdin
+                        docker push $FULL_BACKEND_IMAGE
+                        docker push $FULL_FRONTEND_IMAGE
+                    '''
+                }
+            }
+        }
+
+        stage('Approval Before Deploy') {
+            steps {
+                script {
+                    try {
+                        emailext(
+                            subject: "[APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                            body: """
+                                <h3>Pipeline đang chờ phê duyệt để deploy</h3>
+                                <ul>
+                                    <li><b>Job:</b> ${env.JOB_NAME}</li>
+                                    <li><b>Build:</b> #${env.BUILD_NUMBER}</li>
+                                    <li><b>Image Tag:</b> ${IMAGE_TAG}</li>
+                                    <li><b>Backend Image:</b> ${FULL_BACKEND_IMAGE}</li>
+                                    <li><b>Frontend Image:</b> ${FULL_FRONTEND_IMAGE}</li>
+                                </ul>
+                                <p><b>Approve tại:</b> <a href="${env.BUILD_URL}input">${env.BUILD_URL}input</a></p>
+                                <p>Console log: <a href="${env.BUILD_URL}console">${env.BUILD_URL}console</a></p>
+                            """,
+                            mimeType: 'text/html',
+                            to: "${APPROVER_EMAIL}"
+                        )
+                    } catch (err) {
+                        echo "WARNING: Không gửi được email thông báo: ${err.getMessage()}"
+                    }
+
+                    timeout(time: 30, unit: 'MINUTES') {
+                        def approval = input(
+                            message: "Deploy to production?\n\nImage tag: ${IMAGE_TAG}",
+                            ok: "Deploy",
+                            submitter: "${APPROVER_USER}",
+                            submitterParameter: 'APPROVED_BY'
+                        )
+                        echo "Deploy approved by: ${approval}"
+                    }
+                }
+            }
+        }
 
 //     stage('Update Manifests') {
 //         steps {
@@ -231,50 +230,50 @@ pipeline {
     //         echo "Pipeline SUCCESS - Image tag: ${IMAGE_TAG}"
     //     }
     // }
-    stage('Update manifests repo') {
-        steps {
-            withCredentials([
-                usernamePassword(
-                    credentialsId: "${GITHUB_CREDENTIALS_ID}",
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASSWD'
-                )
-            ]) {
-                sh '''
-                    rm -rf manifests-repo
-                    git clone https://${USER}:${PASSWD}@${MANIFESTS_REPO} manifests-repo
-
-                    sed -i "s|image: ${BACKEND_IMAGE}:.*|image: ${FULL_BACKEND_IMAGE}|g" manifests-repo/apps/backend.yaml
-                    sed -i "s|image: ${FRONTEND_IMAGE}:.*|image: ${FULL_FRONTEND_IMAGE}|g" manifests-repo/apps/frontend.yaml
-                '''
-            }
-        }
-    }
-
-    stage('Push manifests repo') {
-        steps {
-            dir('manifests-repo') {
+        stage('Update manifests repo') {
+            steps {
                 withCredentials([
                     usernamePassword(
                         credentialsId: "${GITHUB_CREDENTIALS_ID}",
                         usernameVariable: 'USER',
-                        passwordVariable: 'PASS'
+                        passwordVariable: 'PASSWD'
                     )
                 ]) {
                     sh '''
-                        git config user.name "jenkins"
-                        git config user.email "jenkins@gmail.com"
+                        rm -rf manifests-repo
+                        git clone https://${USER}:${PASSWD}@${MANIFESTS_REPO} manifests-repo
 
-                        git add apps/backend.yaml apps/frontend.yaml
-                        git commit -m "cd: update image tags to ${IMAGE_TAG}" || echo "No changes to commit"
-
-                        git push https://${USER}:${PASS}@${MANIFESTS_REPO} HEAD:main
+                        sed -i "s|image: ${BACKEND_IMAGE}:.*|image: ${FULL_BACKEND_IMAGE}|g" manifests-repo/apps/backend.yaml
+                        sed -i "s|image: ${FRONTEND_IMAGE}:.*|image: ${FULL_FRONTEND_IMAGE}|g" manifests-repo/apps/frontend.yaml
                     '''
                 }
             }
         }
+
+        stage('Push manifests repo') {
+            steps {
+                dir('manifests-repo') {
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: "${GITHUB_CREDENTIALS_ID}",
+                            usernameVariable: 'USER',
+                            passwordVariable: 'PASS'
+                        )
+                    ]) {
+                        sh '''
+                            git config user.name "jenkins"
+                            git config user.email "jenkins@gmail.com"
+
+                            git add apps/backend.yaml apps/frontend.yaml
+                            git commit -m "cd: update image tags to ${IMAGE_TAG}" || echo "No changes to commit"
+
+                            git push https://${USER}:${PASS}@${MANIFESTS_REPO} HEAD:main
+                        '''
+                    }
+                }
+            }
+        }
     }
-    
 
     post {
         always {
