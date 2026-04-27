@@ -151,52 +151,28 @@ pipeline {
                         emailext(
                             subject: "🚀 [APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                             from: "GymFlex CI/CD <manhtan06120@gmail.com>",
-                            replyTo: "noreply@gymflex.com",
-                            body: """
-                                <div style="font-family: -apple-system, Segoe UI, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
-                                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 24px;">
-                                        <h2 style="margin: 0;">🚀 Deployment Approval Required</h2>
-                                        <p style="margin: 8px 0 0; opacity: 0.9;">Pipeline đang chờ phê duyệt để deploy lên production</p>
+                           body: """
+                                <div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:520px;margin:0 auto;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
+                                    <div style="background:#4f46e5;color:#fff;padding:20px">
+                                        <h2 style="margin:0;font-size:18px">🚀 Deployment Approval Required</h2>
+                                        <p style="margin:6px 0 0;font-size:13px;opacity:.85">Pipeline đang chờ phê duyệt để deploy</p>
                                     </div>
-                                    
-                                    <div style="padding: 24px; background: #fafafa;">
-                                        <table style="width: 100%; border-collapse: collapse;">
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #666;"><b>📦 Job:</b></td>
-                                                <td style="padding: 8px 0;">${env.JOB_NAME}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #666;"><b>🔢 Build:</b></td>
-                                                <td style="padding: 8px 0;">#${env.BUILD_NUMBER}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #666;"><b>🏷️ Tag:</b></td>
-                                                <td style="padding: 8px 0;"><code style="background:#eee; padding:2px 6px; border-radius:3px;">${IMAGE_TAG}</code></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #666;"><b>🐳 Backend:</b></td>
-                                                <td style="padding: 8px 0; font-family: monospace; font-size: 13px;">${FULL_BACKEND_IMAGE}</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #666;"><b>🎨 Frontend:</b></td>
-                                                <td style="padding: 8px 0; font-family: monospace; font-size: 13px;">${FULL_FRONTEND_IMAGE}</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    
-                                    <div style="padding: 24px; text-align: center; background: white;">
-                                        <a href="${env.BUILD_URL}input" 
-                                        style="display: inline-block; background: #28a745; color: white; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-weight: 600;">
-                                            ✅ Approve Deployment
-                                        </a>
-                                        <p style="margin: 16px 0 0; font-size: 13px; color: #888;">
-                                            Hoặc xem chi tiết tại 
-                                            <a href="${env.BUILD_URL}console">Console Log</a>
+
+                                    <div style="padding:20px;font-size:14px;color:#374151">
+                                        <p style="margin:0 0 4px"><b>Job:</b> ${env.JOB_NAME} <span style="color:#9ca3af">#${env.BUILD_NUMBER}</span></p>
+                                        <p style="margin:0 0 12px"><b>Tag:</b> <code style="background:#f3f4f6;padding:2px 6px;border-radius:3px">${IMAGE_TAG}</code></p>
+                                        <p style="margin:0;font-family:monospace;font-size:12px;color:#6b7280">
+                                            ${FULL_BACKEND_IMAGE}<br>${FULL_FRONTEND_IMAGE}
                                         </p>
                                     </div>
-                                    
-                                    <div style="padding: 12px 24px; background: #f0f0f0; font-size: 11px; color: #999; text-align: center;">
-                                        Sent by Jenkins CI/CD • GymFlex Project
+
+                                    <div style="padding:0 20px 24px;text-align:center">
+                                        <a href="${env.BUILD_URL}input" style="display:inline-block;background:#16a34a;color:#fff;padding:10px 28px;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px">
+                                            ✅ Approve Deployment
+                                        </a>
+                                        <p style="margin:12px 0 0;font-size:12px;color:#9ca3af">
+                                            <a href="${env.BUILD_URL}console" style="color:#6b7280">View console log</a>
+                                        </p>
                                     </div>
                                 </div>
                             """,
