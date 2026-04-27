@@ -151,31 +151,24 @@ pipeline {
                         emailext(
                             subject: "🚀 [APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                             from: "GymFlex CI/CD <manhtan06120@gmail.com>",
-                           body: """
-                                <div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:520px;margin:0 auto;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
-                                    <div style="background:#4f46e5;color:#fff;padding:20px">
-                                        <h2 style="margin:0;font-size:18px">🚀 Deployment Approval Required</h2>
-                                        <p style="margin:6px 0 0;font-size:13px;opacity:.85">Pipeline đang chờ phê duyệt để deploy</p>
-                                    </div>
+                            body: """
+                                <div style="font-family:Arial,sans-serif;font-size:14px">
+                                    <h3>Deployment Approval Required</h3>
 
-                                    <div style="padding:20px;font-size:14px;color:#374151">
-                                        <p style="margin:0 0 4px"><b>Job:</b> ${env.JOB_NAME} <span style="color:#9ca3af">#${env.BUILD_NUMBER}</span></p>
-                                        <p style="margin:0 0 12px"><b>Tag:</b> <code style="background:#f3f4f6;padding:2px 6px;border-radius:3px">${IMAGE_TAG}</code></p>
-                                        <p style="margin:0;font-family:monospace;font-size:12px;color:#6b7280">
-                                            ${FULL_BACKEND_IMAGE}<br>${FULL_FRONTEND_IMAGE}
-                                        </p>
-                                    </div>
+                                    <p><b>${env.JOB_NAME} #${env.BUILD_NUMBER}</b></p>
+                                    <p>Tag: <code>${IMAGE_TAG}</code></p>
 
-                                    <div style="padding:0 20px 24px;text-align:center">
-                                        <a href="${env.BUILD_URL}input" style="display:inline-block;background:#16a34a;color:#fff;padding:10px 28px;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px">
-                                            ✅ Approve Deployment
-                                        </a>
-                                        <p style="margin:12px 0 0;font-size:12px;color:#9ca3af">
-                                            <a href="${env.BUILD_URL}console" style="color:#6b7280">View console log</a>
-                                        </p>
-                                    </div>
+                                    <p style="font-size:12px;color:#555">
+                                        ${FULL_BACKEND_IMAGE}<br/>
+                                        ${FULL_FRONTEND_IMAGE}
+                                    </p>
+
+                                    <p>
+                                        <a href="${env.BUILD_URL}input">Approve</a> |
+                                        <a href="${env.BUILD_URL}console">Logs</a>
+                                    </p>
                                 </div>
-                            """,
+                            """
                             mimeType: 'text/html',
                             to: "${APPROVER_EMAIL}"
                         )
