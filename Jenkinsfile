@@ -149,7 +149,7 @@ pipeline {
                 script {
                     try {
                         emailext(
-                            subject: "🚀 [APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                            subject: "[APPROVAL NEEDED] Deploy ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                             from: "GymFlex CI/CD <manhtan06120@gmail.com>",
                             body: """
                                 <div style="font-family:Arial,sans-serif;font-size:14px">
@@ -168,7 +168,7 @@ pipeline {
                                         <a href="${env.BUILD_URL}console">Logs</a>
                                     </p>
                                 </div>
-                            """
+                            """,
                             mimeType: 'text/html',
                             to: "${APPROVER_EMAIL}"
                         )
