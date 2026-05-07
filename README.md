@@ -1,14 +1,14 @@
 # GymFlex — NT548 Project
 
-Monorepo for the GymFlex application (NT548 course project).
+Monorepo for the GymFlex application [NT548 course project].
 
-- Backend: Node.js + Express API (connects to MongoDB Atlas)
-- Frontend: React (Create React App) + Redux
+- Backend: Node.js + Express API 
+- Frontend: React + Redux
 - Containerization: Docker
 - Orchestration: Kubernetes (k3s)
 - CI/CD: Jenkins pipeline with SonarQube and Trivy
-- GitOps: ArgoCD (tracks a separate Manifests repository)
-- Infrastructure: Terraform (VPC + EC2 modules on AWS)
+- GitOps: ArgoCD 
+- Infrastructure: Terraform 
 
 ---
 
@@ -25,16 +25,14 @@ CI/CD: Jenkins → SonarQube → Trivy → Docker Hub → ArgoCD → k3s
 
 ```
 NT548-Project/
-├── backend/               # Node.js API (Express), entry: src/server.js
-├── frontend/              # React app (Create React App)
+├── backend/               # Node.js API (Express)
+├── frontend/              # React app 
 ├── k8s/
 │   ├── apps/              # Manifests: backend.yaml, frontend.yaml, mongodb.yaml
 │   └── infra/             # Manifests: Prometheus, Mimir, MongoDB PVC
 ├── argocd/                # ArgoCD application manifests (app, nodeport, prometheus, grafana)
 ├── terraform/             # IaC AWS: VPC + EC2 modules
-├── docker-compose.yaml    # Local compose file (optional)
-├── Jenkinsfile            # Main pipeline (approval + email + Trivy .trivyignore)
-├── Jenkinsfile2           # Secondary pipeline (no approval, CRITICAL-only Trivy)
+├── Jenkinsfile            # Main pipeline 
 ├── sonar-project.properties
 └── .trivyignore
 ```
@@ -78,6 +76,39 @@ MONGO_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/<db>
 ```
 
 ---
+## Quick Start
+
+**Frontend:**
+
+```bash
+cd frontend
+npm ci
+npm start            # development server at http://localhost:3000
+```
+
+**Backend:**
+
+```bash
+cd backend
+npm ci
+# Copy example env (Unix)
+cp .env.example .env
+# Windows PowerShell
+copy .env.example .env
+npm run dev          # nodemon src/server.js (default port 4000)
+```
+
+## Environment variables
+
+Copy `.env.example` to `.env` and fill values:
+
+```
+MONGO_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/<db>
+PORT=4000
+JWT_SECRET=your_jwt_secret_here
+REFRESH_TOKEN_SECRET=your_refresh_token_secret_here
+NODE_ENV=development
+```
 
 ## Test & Coverage
 
@@ -143,8 +174,6 @@ The `Jenkinsfile` implements the pipeline stages:
 - Approval Before Deploy: manual approval step via Jenkins input
 - Update Manifests Repo: update image tags in Manifests repo and push
 
-`Jenkinsfile2` is a secondary pipeline with no approval and CRITICAL-only Trivy scanning.
-
 Pipeline environment variables used in `Jenkinsfile` include:
 
 - `BACKEND_IMAGE` / `FRONTEND_IMAGE` — base image names
@@ -195,17 +224,3 @@ Manifests in `argocd/`:
 - `argocd-grafana.yaml` — ArgoCD Application for Grafana
 
 ---
-
-## Contributing
-
-1. Fork the repository and create a feature branch.
-2. Run tests locally and ensure changes are working.
-3. Open a pull request describing your change.
-
-## License
-
-If a `LICENSE` file is not present, please check with the maintainers.
-
----
-
-This README is a concise guide to get you started — edit or extend it for project-specific needs.
