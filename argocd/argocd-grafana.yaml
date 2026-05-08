@@ -23,7 +23,7 @@ spec:
         ingress:
           enabled: true
           hosts:
-            - grafana.13.212.10.28.nip.io
+            - grafana.13.229.132.231.nip.io
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
