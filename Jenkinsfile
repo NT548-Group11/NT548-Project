@@ -56,9 +56,11 @@ pipeline {
             }
             steps {
                 dir('frontend'){
+                    echo "Running frontend unit tests with coverage..."
                     sh 'CI=true npm run test:coverage || true'
                 }
                 dir('backend'){
+                    echo "Running backend unit tests with coverage..."
                     sh 'CI=true npm run test:coverage || true'           
                 }
                 script {
