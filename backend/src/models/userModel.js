@@ -9,7 +9,7 @@ const addressSchema = new mongoose.Schema(
   },
   { _id: false }
 );
-var userSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,

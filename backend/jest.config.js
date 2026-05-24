@@ -2,6 +2,9 @@ module.exports = {
   // Môi trường chạy test
   testEnvironment: 'node',
 
+  // Nạp biến môi trường (JWT_SECRET, ...) trước khi chạy test
+  setupFiles: ['<rootDir>/tests/setup.js'],
+
   // Folder chứa coverage report
   coverageDirectory: 'coverage',
 

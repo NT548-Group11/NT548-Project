@@ -5,7 +5,7 @@ const variantSchema = new mongoose.Schema({
   values: [{ type: String, required: true }], // ["Xanh", "Đỏ"], ["S", "M"],...
   defaultValue: { type: String }, // Giá trị mặc định (nếu có)
 });
-var productSchema = new mongoose.Schema(
+const productSchema = new mongoose.Schema(
   {
     title: {
       type: String,
