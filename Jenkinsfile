@@ -203,15 +203,6 @@ pipeline {
                         rm -rf manifests-repo
                         git clone https://${USER}:${PASSWD}@${MANIFESTS_REPO} manifests-repo
 
-                        echo "===== Dang dung o thu muc (pwd) ====="
-                        pwd
-                        echo "===== Noi dung workspace ====="
-                        ls -la
-                        echo "===== Noi dung manifests-repo ====="
-                        ls -la manifests-repo
-                        echo "===== Noi dung manifests-repo/apps ====="
-                        ls -la manifests-repo/apps
-
                         sed -i "s|image: ${BACKEND_IMAGE}:.*|image: ${FULL_BACKEND_IMAGE}|g" manifests-repo/apps/backend.yaml
                         sed -i "s|image: ${FRONTEND_IMAGE}:.*|image: ${FULL_FRONTEND_IMAGE}|g" manifests-repo/apps/frontend.yaml
                     '''
