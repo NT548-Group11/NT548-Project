@@ -168,15 +168,35 @@ Configuration in `sonar-project.properties`:
 
 ## Infrastructure (Terraform)
 
+Hạ tầng được dựng trên AWS bằng Terraform, gồm 1 mạng VPC và 4 máy chủ EC2:
+
+**Mạng (module `vpc`):**
+
+- 1 VPC
+- 1 Public Subnet
+- 1 Internet Gateway (IGW)
+- 1 Route Table định tuyến ra Internet
+
+**Máy chủ (module `ec2`, dùng chung cho cả 4 instance):**
+
+| Instance        | Vai trò                                        |
+|-----------------|------------------------------------------------|
+| `jenkins-server`| Jenkins master — điều phối pipeline CI/CD        |
+| `jenkins-agent` | Jenkins agent — build, test, build/push Docker  |
+| `sonarqube`     | Server SonarQube cho phân tích chất lượng code  |
+| `k3s`           | Cluster Kubernetes (k3s) để deploy ứng dụng     |
+
+Mỗi instance được gán private IP cố định, security group mở các cổng riêng (`*_ingress_ports`) và dung lượng ổ đĩa riêng (`*_volume_size`) qua biến trong `terraform.tfvars`.
+
 ```
 terraform/
-├── main.tf            # Root module: calls vpc + ec2 modules
+├── main.tf            # Root module: 1 module vpc + 4 module ec2
 ├── variables.tf
 ├── outputs.tf
 ├── terraform.tfvars   # Fill values before running
 └── modules/
-    ├── vpc/           # Creates VPC, subnets, IGW, route tables
-    └── ec2/           # Creates EC2 instances (Jenkins agent, etc.)
+    ├── vpc/           # Tạo VPC, subnet, IGW, route table
+    └── ec2/           # Tạo EC2 instance (tái dùng cho 4 server)
 ```
 
 ```bash
