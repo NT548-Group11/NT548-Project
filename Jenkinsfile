@@ -204,8 +204,7 @@ pipeline {
                         git clone https://${USER}:${PASSWD}@${MANIFESTS_REPO} manifests-repo
 
                         sed -i "s|image: ${BACKEND_IMAGE}:.*|image: ${FULL_BACKEND_IMAGE}|g" manifests-repo/apps/backend.yaml
-                        sed -i "s|image: ${FRONTEND_IMAGE}:.*|image: ${FULL_FRONTEND_IMAGE}|g" manifests-repo/apps/frontend.
-                        pwd
+                        sed -i "s|image: ${FRONTEND_IMAGE}:.*|image: ${FULL_FRONTEND_IMAGE}|g" manifests-repo/apps/frontend.yaml
                     '''
                 }
             }
