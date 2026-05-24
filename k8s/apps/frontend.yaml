@@ -4,6 +4,12 @@ metadata:
   name: frontend
   namespace: devops-dev
 spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: frontend
@@ -13,10 +19,22 @@ spec:
         app: frontend
     spec:
       containers:
-      - name: frontend
-        image: noseyug/gymflex-frontend:v46
-        ports:
-        - containerPort: 80
+        - name: frontend
+          image: noseyug/gymflex-frontend:v46
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 15
 ---
 apiVersion: v1
 kind: Service
@@ -38,13 +56,13 @@ metadata:
   namespace: devops-dev
 spec:
   rules:
-  - host: 13.212.177.121.nip.io
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 80
+    - host: 13.229.121.179.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80

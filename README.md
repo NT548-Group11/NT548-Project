@@ -50,40 +50,14 @@ NT548-Project/
 - SonarQube server (tool name: `sonarqube`)
 
 ---
-
-## Local development
-
-**Frontend:**
-
-```bash
-cd frontend
-npm ci
-npm start            # development server at http://localhost:3000
-```
-
-**Backend:**
-
-```bash
-cd backend
-npm ci
-npm run dev          # nodemon src/server.js (default port 4000)
-```
-
-Create a `.env` file in the project root (or `backend/`) with:
-
-```
-MONGO_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/<db>
-```
-
----
-## Quick Start
+## Quick Start local 
 
 **Frontend:**
 
 ```bash
 cd frontend
 npm ci
-npm start            # development server at http://localhost:3000
+npm start           
 ```
 
 **Backend:**
@@ -223,4 +197,3 @@ Manifests in `argocd/`:
 - `argocd-prometheus.yaml` — ArgoCD Application for Prometheus
 - `argocd-grafana.yaml` — ArgoCD Application for Grafana
 
----
