@@ -125,8 +125,6 @@ kubectl apply -f k8s/apps/frontend.yaml
 kubectl apply -f k8s/apps/mongodb.yaml
 ```
 
-Infra manifests (Prometheus, Mimir, PVC):
-
 ```bash
 kubectl apply -f k8s/infra/
 ```
