@@ -13,8 +13,10 @@ Monorepo for the GymFlex application [NT548 course project].
 ---
 
 ## Architecture
+<img width="1484" height="1018" alt="ktht" src="https://github.com/user-attachments/assets/ea2cc05c-fb7d-460a-916f-f1549ffd0cfc" />
 
 ```
+
 User → Ingress → Frontend (Nginx, port 80) → Backend (Node.js, port 5000) → MongoDB Atlas
 CI/CD: Jenkins → SonarQube → Trivy → Docker Hub → ArgoCD → k3s
 ```
