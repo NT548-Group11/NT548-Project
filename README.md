@@ -1,3 +1,4 @@
+
 # GymFlex — NT548 Project
 
 Monorepo for the GymFlex application [NT548 course project].
@@ -13,7 +14,7 @@ Monorepo for the GymFlex application [NT548 course project].
 ---
 
 ## Architecture
-<img width="1352" height="914" alt="ktht-devops" src="https://github.com/user-attachments/assets/2649d938-0041-4632-baae-5d44cef30ad8" />
+<img width="1362" height="918" alt="29s" src="https://github.com/user-attachments/assets/817fbba2-55db-44ff-bfd3-1a5ec2d85316" />
 
 ```
 
