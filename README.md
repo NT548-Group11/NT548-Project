@@ -1,220 +1,152 @@
+# GymFlex DevOps Platform
 
-# GymFlex — NT548 Project
+<p align="center">
+  <img src="https://img.shields.io/badge/Project-NT548-blue.svg" alt="NT548 Project" />
+  <img src="https://img.shields.io/badge/CI%2FCD-Jenkins%20%7C%20SonarQube%20%7C%20Trivy-f59e0b.svg" alt="CI/CD" />
+  <img src="https://img.shields.io/badge/GitOps-ArgoCD-326ce5.svg" alt="GitOps" />
+  <img src="https://img.shields.io/badge/Orchestration-Kubernetes%20%7C%20k3s-4f46e5.svg" alt="Kubernetes" />
+  <img src="https://img.shields.io/badge/IaC-Terraform-7b42bc.svg" alt="Infrastructure as Code" />
+</p>
 
-Monorepo for the GymFlex application [NT548 course project].
-
-- Backend: Node.js + Express API 
-- Frontend: React + Redux
-- Containerization: Docker
-- Orchestration: Kubernetes (k3s)
-- CI/CD: Jenkins pipeline with SonarQube and Trivy
-- GitOps: ArgoCD 
-- Infrastructure: Terraform 
-
----
+GymFlex is a DevOps-focused project that demonstrates how to build, secure, package, deploy, and manage a full-stack application using modern delivery practices. The repository combines application code with CI/CD automation, containerization, Kubernetes deployment, GitOps workflows, observability components, and Terraform-based AWS infrastructure.
 
 ## Architecture
-<img width="1362" height="918" alt="29s" src="https://github.com/user-attachments/assets/817fbba2-55db-44ff-bfd3-1a5ec2d85316" />
 
+![Architecture](https://github.com/user-attachments/assets/817fbba2-55db-44ff-bfd3-1a5ec2d85316)
+
+```text
+Source Code -> Jenkins -> SonarQube -> Trivy -> Docker Hub -> ArgoCD -> Kubernetes (k3s)
+User -> Ingress -> Frontend (Nginx) -> Backend API -> MongoDB
 ```
 
-User → Ingress → Frontend (Nginx, port 80) → Backend (Node.js, port 5000) → MongoDB Atlas
-CI/CD: Jenkins → SonarQube → Trivy → Docker Hub → ArgoCD → k3s
+## DevOps Focus
+
+- Automated build and test pipeline with Jenkins
+- Static analysis and quality gate with SonarQube
+- Container vulnerability scanning with Trivy
+- Docker image build and publish workflow
+- Kubernetes deployment on k3s
+- GitOps deployment through ArgoCD
+- Infrastructure provisioning with Terraform on AWS
+
+## Platform Components
+
+- Frontend: React + Redux
+- Backend: Node.js + Express + Mongoose
+- Database: MongoDB / MongoDB Atlas
+- Deployment: Docker, Kubernetes, ArgoCD
+- CI/CD: Jenkins, SonarQube, Trivy
+- Infrastructure: Terraform on AWS
+
+## Repository Structure
+
+```text
+NT548/
+├── backend/              # Express API and business logic
+├── frontend/             # React client
+├── k8s/                  # Kubernetes manifests
+├── argocd/               # ArgoCD application manifests
+├── terraform/            # AWS infrastructure as code
+├── Jenkinsfile           # CI/CD pipeline
+└── sonar-project.properties
 ```
 
----
+## CI/CD Pipeline
 
-## Repository layout
+The `Jenkinsfile` implements the following stages:
 
-```
-NT548-Project/
-├── backend/               # Node.js API (Express)
-├── frontend/              # React app 
-├── k8s/
-│   ├── apps/              # Manifests: backend.yaml, frontend.yaml, mongodb.yaml
-│   └── infra/             # Manifests: Prometheus, Mimir, MongoDB PVC
-├── argocd/                # ArgoCD application manifests (app, nodeport, prometheus, grafana)
-├── terraform/             # IaC AWS: VPC + EC2 modules
-├── Jenkinsfile            # Main pipeline 
-├── sonar-project.properties
-└── .trivyignore
-```
+1. Clean workspace and checkout source
+2. Install dependencies
+3. Build frontend
+4. Run frontend and backend tests with coverage
+5. Run SonarQube analysis
+6. Enforce quality gate
+7. Build Docker images
+8. Scan images with Trivy
+9. Push images to Docker Hub
+10. Request manual approval before deployment
+11. Update GitOps manifests repository
+12. Push updated manifests
 
----
+## Kubernetes Deployment
 
-## Prerequisites
+The Kubernetes manifests are organized under `k8s/`:
 
-- Node.js v18
-- npm
-- Docker
-- kubectl
-- Access to a Kubernetes cluster (k3s) for real deployments
-- Jenkins with credentials: `docker-account`, `github-id`
-- SonarQube server (tool name: `sonarqube`)
+- `k8s/apps/` for application workloads
+- `k8s/infra/` for supporting infrastructure resources
 
----
-## Quick Start local 
+Deployment details:
 
-**Frontend:**
+- Frontend container runs on port `80`
+- Backend container runs on port `4000`
+- Backend Service exposes port `5000` inside the cluster and targets `4000`
+- Frontend is exposed through an Ingress
+
+## GitOps
+
+ArgoCD manages deployment from the GitOps manifests repository:
+
+- [`NT548-Group11/Manifests`](https://github.com/NT548-Group11/Manifests.git)
+
+## Infrastructure as Code
+
+Terraform provisions the AWS infrastructure used by the platform, including:
+
+- VPC networking
+- Jenkins server
+- Jenkins agent
+- SonarQube server
+- k3s host
+
+## Quality and Security
+
+- SonarQube is configured in `sonar-project.properties`
+- Coverage reports are collected from both frontend and backend
+- Trivy scans container images for high and critical vulnerabilities
+- The pipeline includes a manual approval step before deployment
+
+## Local Run
+
+### Frontend
 
 ```bash
 cd frontend
 npm ci
-npm start           
+npm start
 ```
 
-**Backend:**
+### Backend
 
 ```bash
 cd backend
 npm ci
-# Copy example env (Unix)
-cp .env.example .env
-# Windows PowerShell
-copy .env.example .env
-npm run dev          # nodemon src/server.js (default port 4000)
+copy ..\.env.example .env
+npm run dev
 ```
 
-## Environment variables
+Local ports:
 
-Copy `.env.example` to `.env` and fill values:
+- Frontend: `3000`
+- Backend: `4000`
 
-```
-MONGO_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/<db>
-PORT=4000
-JWT_SECRET=your_jwt_secret_here
-REFRESH_TOKEN_SECRET=your_refresh_token_secret_here
-NODE_ENV=development
-```
+## Backend API
 
-## Test & Coverage
+The backend exposes routes for:
 
-**Backend:**
+- `/api/user`
+- `/api/product`
+- `/api/blog`
+- `/api/categories`
+- `/api/exercise`
+- `/api/order`
+- `/api/cart`
+- `/api/coupon`
+- `/api/address`
+- `/api/reviews`
 
-```bash
-cd backend
-npm test
-npm run test:coverage   # generates lcov report at backend/coverage/lcov.info
-```
+## Project Value
 
-**Frontend:**
-
-```bash
-cd frontend
-npm test
-npm run test:coverage   # generates lcov report at frontend/coverage/lcov.info
-```
-
----
-
-## Build & Push Docker images
-
-```bash
-docker build -t noseyug/gymflex-backend:<tag> ./backend
-docker build -t noseyug/gymflex-frontend:<tag> ./frontend
-docker push noseyug/gymflex-backend:<tag>
-docker push noseyug/gymflex-frontend:<tag>
-```
-
----
-
-## Kubernetes
-
-Apply the manifests to your cluster (choose namespace/context as appropriate):
-
-```bash
-kubectl apply -f k8s/apps/backend.yaml
-kubectl apply -f k8s/apps/frontend.yaml
-kubectl apply -f k8s/apps/mongodb.yaml
-```
-
-```bash
-kubectl apply -f k8s/infra/
-```
-
----
-
-## CI/CD — Jenkins
-
-The `Jenkinsfile` implements the pipeline stages:
-
-- Cleanup: clear workspace
-- Checkout: clone source
-- Install & Build: `npm ci` for frontend/backend and `npm run build` for frontend
-- SonarQube Analysis: run tests/coverage and `sonar-scanner`
-- Quality Gate: wait for SonarQube quality gate
-- Build Images: `docker build` backend + frontend
-- Trivy Scan: scan for CRITICAL and HIGH (uses `.trivyignore`)
-- Push Images: push to Docker registry
-- Approval Before Deploy: manual approval step via Jenkins input
-- Update Manifests Repo: update image tags in Manifests repo and push
-
-Pipeline environment variables used in `Jenkinsfile` include:
-
-- `BACKEND_IMAGE` / `FRONTEND_IMAGE` — base image names
-- `IMAGE_TAG` — tag generated from the Jenkins build id
-- `DOCKER_CREDENTIALS_ID`, `GITHUB_CREDENTIALS_ID`, `APPROVER_EMAIL`, `APPROVER_USER`, `MANIFESTS_REPO`
-
----
-
-## SonarQube
-
-Configuration in `sonar-project.properties`:
-
-- Project key/name: `gym_flex`
-- Sources: `frontend/src`, `backend/src`
-- Coverage reports: `frontend/coverage/lcov.info`, `backend/coverage/lcov.info`
-
----
-
-## Infrastructure (Terraform)
-
-Hạ tầng được dựng trên AWS bằng Terraform, gồm 1 mạng VPC và 4 máy chủ EC2:
-
-**Mạng (module `vpc`):**
-
-- 1 VPC
-- 1 Public Subnet
-- 1 Internet Gateway (IGW)
-- 1 Route Table định tuyến ra Internet
-
-**Máy chủ (module `ec2`, dùng chung cho cả 4 instance):**
-
-| Instance        | Vai trò                                        |
-|-----------------|------------------------------------------------|
-| `jenkins-server`| Jenkins master — điều phối pipeline CI/CD        |
-| `jenkins-agent` | Jenkins agent — build, test, build/push Docker  |
-| `sonarqube`     | Server SonarQube cho phân tích chất lượng code  |
-| `k3s`           | Cluster Kubernetes (k3s) để deploy ứng dụng     |
-
-Mỗi instance được gán private IP cố định, security group mở các cổng riêng (`*_ingress_ports`) và dung lượng ổ đĩa riêng (`*_volume_size`) qua biến trong `terraform.tfvars`.
-
-```
-terraform/
-├── main.tf            # Root module: 1 module vpc + 4 module ec2
-├── variables.tf
-├── outputs.tf
-├── terraform.tfvars   # Fill values before running
-└── modules/
-    ├── vpc/           # Tạo VPC, subnet, IGW, route table
-    └── ec2/           # Tạo EC2 instance (tái dùng cho 4 server)
-```
-
-```bash
-cd terraform
-terraform init
-terraform plan
-terraform apply
-```
-
----
-
-## ArgoCD
-
-Manifests in `argocd/`:
-
-- `argocd-app.yaml` — ArgoCD Application that tracks `NT548-Group11/Manifests`
-- `argocd-nodeport.yaml` — Expose ArgoCD server via NodePort
-- `argocd-prometheus.yaml` — ArgoCD Application for Prometheus
-- `argocd-grafana.yaml` — ArgoCD Application for Grafana
-
+- End-to-end delivery from code commit to Kubernetes deployment
+- CI/CD, quality gates, security scanning, and GitOps
+- Infrastructure automation with Terraform
+- A realistic multi-service application used to validate the platform
