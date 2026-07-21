@@ -1,113 +1,222 @@
 # GymFlex DevOps Platform
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Project-NT548-blue.svg" alt="NT548 Project" />
-  <img src="https://img.shields.io/badge/CI%2FCD-Jenkins%20%7C%20SonarQube%20%7C%20Trivy-f59e0b.svg" alt="CI/CD" />
-  <img src="https://img.shields.io/badge/GitOps-ArgoCD-326ce5.svg" alt="GitOps" />
-  <img src="https://img.shields.io/badge/Orchestration-Kubernetes%20%7C%20k3s-4f46e5.svg" alt="Kubernetes" />
-  <img src="https://img.shields.io/badge/IaC-Terraform-7b42bc.svg" alt="Infrastructure as Code" />
-</p>
+Source repository for GymFlex, built as part of the NT548 coursework. It
+contains the application code, Jenkins pipeline, Dockerfiles, Kubernetes
+manifests, Argo CD definitions and Terraform configuration used to build and
+deploy a full-stack application.
 
-GymFlex is a DevOps-focused project that demonstrates how to build, secure, package, deploy, and manage a full-stack application using modern delivery practices. The repository combines application code with CI/CD automation, containerization, Kubernetes deployment, GitOps workflows, observability components, and Terraform-based AWS infrastructure.
+## 📚 Table of Contents
 
-## Architecture
+- [✨ Highlights](#highlights)
+- [🏗️ Architecture](#architecture)
+- [🚀 CI/CD Flow](#cicd-flow)
+- [⚙️ Jenkins Pipeline](#jenkins-pipeline)
+- [🧪 Quality and Security Gates](#quality-and-security-gates)
+- [🐳 Container Images](#container-images)
+- [☸️ Kubernetes and GitOps](#kubernetes-and-gitops)
+- [☁️ Infrastructure](#infrastructure)
+- [📁 Repository Structure](#repository-structure)
+- [🧩 Application Context](#application-context)
+- [💻 Local Run](#local-run)
+- [🔗 Related Repository](#related-repository)
 
-![Architecture](https://github.com/user-attachments/assets/817fbba2-55db-44ff-bfd3-1a5ec2d85316)
+<a id="highlights"></a>
 
-```text
-Source Code -> Jenkins -> SonarQube -> Trivy -> Docker Hub -> ArgoCD -> Kubernetes (k3s)
-User -> Ingress -> Frontend (Nginx) -> Backend API -> MongoDB
+## ✨ Highlights
+
+- Jenkins pipeline for build, test, scan, package and deployment handoff.
+- SonarQube analysis with quality gate enforcement.
+- Trivy image scanning for high and critical vulnerabilities.
+- Docker image publishing to Docker Hub.
+- Manual approval before deployment.
+- GitOps manifest updates through a separate manifests repository.
+- Argo CD automated sync to a k3s Kubernetes cluster.
+- Terraform modules for AWS infrastructure provisioning.
+
+<a id="architecture"></a>
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+    User[User] --> Ingress[Ingress]
+    Ingress --> Frontend[Frontend - Nginx]
+    Frontend --> Backend[Backend API - Express]
+    Backend --> MongoDB[(MongoDB)]
+
+    Jenkins[Jenkins] --> SonarQube[SonarQube]
+    Jenkins --> Trivy[Trivy]
+    Jenkins --> DockerHub[Docker Hub]
+    Jenkins --> Manifests[GitOps Manifests]
+    Manifests --> ArgoCD[Argo CD]
+    ArgoCD --> K3S[k3s Cluster]
 ```
 
-## DevOps Focus
+The application is intentionally used as a workload for the delivery platform.
+The main focus of this repository is the CI/CD, image security, GitOps and
+infrastructure automation around it.
 
-- Automated build and test pipeline with Jenkins
-- Static analysis and quality gate with SonarQube
-- Container vulnerability scanning with Trivy
-- Docker image build and publish workflow
-- Kubernetes deployment on k3s
-- GitOps deployment through ArgoCD
-- Infrastructure provisioning with Terraform on AWS
+<a id="cicd-flow"></a>
 
-## Platform Components
+## 🚀 CI/CD Flow
 
-- Frontend: React + Redux
-- Backend: Node.js + Express + Mongoose
-- Database: MongoDB / MongoDB Atlas
-- Deployment: Docker, Kubernetes, ArgoCD
-- CI/CD: Jenkins, SonarQube, Trivy
-- Infrastructure: Terraform on AWS
-
-## Repository Structure
-
-```text
-NT548/
-├── backend/              # Express API and business logic
-├── frontend/             # React client
-├── k8s/                  # Kubernetes manifests
-├── argocd/               # ArgoCD application manifests
-├── terraform/            # AWS infrastructure as code
-├── Jenkinsfile           # CI/CD pipeline
-└── sonar-project.properties
+```mermaid
+flowchart TD
+    Checkout[Checkout source] --> Install[Install dependencies and build frontend]
+    Install --> Coverage[Run frontend and backend coverage tests]
+    Coverage --> Sonar[Run SonarQube analysis]
+    Sonar --> Gate[Enforce quality gate]
+    Gate --> Build[Build backend and frontend Docker images]
+    Build --> Scan[Scan images with Trivy]
+    Scan --> Push[Push images to Docker Hub]
+    Push --> Approval[Manual approval before deploy]
+    Approval --> Update[Update image tags in manifests repo]
+    Update --> GitOps[Push manifests commit]
+    GitOps --> Argo[Argo CD syncs Kubernetes]
 ```
 
-## CI/CD Pipeline
+Images are tagged with the Jenkins build ID, for example `v46`.
 
-The `Jenkinsfile` implements the following stages:
+<a id="jenkins-pipeline"></a>
 
-1. Clean workspace and checkout source
-2. Install dependencies
-3. Build frontend
-4. Run frontend and backend tests with coverage
-5. Run SonarQube analysis
-6. Enforce quality gate
-7. Build Docker images
-8. Scan images with Trivy
-9. Push images to Docker Hub
-10. Request manual approval before deployment
-11. Update GitOps manifests repository
-12. Push updated manifests
+## ⚙️ Jenkins Pipeline
 
-## Kubernetes Deployment
+The `Jenkinsfile` runs on a Jenkins agent and defines the delivery workflow.
 
-The Kubernetes manifests are organized under `k8s/`:
+| Stage | Purpose |
+| --- | --- |
+| `Cleanup` | Clean the Jenkins workspace |
+| `Checkout` | Pull source code |
+| `Install & Build` | Install dependencies and build the frontend |
+| `SonarQube Analysis` | Run coverage tests and static analysis |
+| `Quality Gate` | Stop the pipeline if SonarQube fails |
+| `Build Images` | Build backend and frontend Docker images |
+| `Trivy Scan` | Block high and critical image vulnerabilities |
+| `Push Images` | Push images to Docker Hub |
+| `Approval Before Deploy` | Require manual approval |
+| `Update manifests repo` | Replace image tags in GitOps manifests |
+| `Push manifests repo` | Commit and push updated manifests |
 
-- `k8s/apps/` for application workloads
-- `k8s/infra/` for supporting infrastructure resources
+<a id="quality-and-security-gates"></a>
+
+## 🧪 Quality and Security Gates
+
+Quality checks:
+
+- Frontend coverage through `npm run test:coverage`.
+- Backend coverage through `npm run test:coverage`.
+- SonarQube analysis through `sonar-project.properties`.
+- SonarQube quality gate with pipeline blocking.
+
+Security checks:
+
+- Trivy scans backend and frontend images.
+- The pipeline fails on `CRITICAL` and `HIGH` vulnerabilities.
+- `.trivyignore` is used for explicitly ignored findings.
+
+<a id="container-images"></a>
+
+## 🐳 Container Images
+
+The pipeline builds and publishes two images:
+
+| Component | Image |
+| --- | --- |
+| Backend | `noseyug/gymflex-backend:v<BUILD_ID>` |
+| Frontend | `noseyug/gymflex-frontend:v<BUILD_ID>` |
+
+The frontend image serves the React build through Nginx. The backend image runs
+the Express API on port `4000`.
+
+<a id="kubernetes-and-gitops"></a>
+
+## ☸️ Kubernetes and GitOps
+
+Kubernetes resources are organized under `k8s/`:
+
+- `k8s/apps/` contains application workloads.
+- `k8s/infra/` contains supporting infrastructure values and manifests.
 
 Deployment details:
 
-- Frontend container runs on port `80`
-- Backend container runs on port `4000`
-- Backend Service exposes port `5000` inside the cluster and targets `4000`
-- Frontend is exposed through an Ingress
+- Namespace: `devops-dev`.
+- Frontend replicas: `2`.
+- Backend replicas: `2`.
+- Frontend Ingress host: `13.229.121.179.nip.io`.
+- Backend connects to MongoDB through `mongodb-service`.
+- RollingUpdate strategy is configured for frontend and backend.
+- Liveness and readiness probes are configured for both services.
 
-## GitOps
+Argo CD application definitions are stored under `argocd/` and point to the
+separate GitOps manifests repository.
 
-ArgoCD manages deployment from the GitOps manifests repository:
+<a id="infrastructure"></a>
 
-- [`NT548-Group11/Manifests`](https://github.com/NT548-Group11/Manifests.git)
+## ☁️ Infrastructure
 
-## Infrastructure as Code
+Terraform configuration is stored under `terraform/`.
 
-Terraform provisions the AWS infrastructure used by the platform, including:
+It provisions AWS infrastructure for:
 
-- VPC networking
-- Jenkins server
-- Jenkins agent
-- SonarQube server
-- k3s host
+- VPC networking.
+- Jenkins server.
+- Jenkins agent.
+- SonarQube server.
+- k3s host.
 
-## Quality and Security
+See `terraform/README.md` for Terraform module details and commands.
 
-- SonarQube is configured in `sonar-project.properties`
-- Coverage reports are collected from both frontend and backend
-- Trivy scans container images for high and critical vulnerabilities
-- The pipeline includes a manual approval step before deployment
+<a id="repository-structure"></a>
 
-## Local Run
+## 📁 Repository Structure
 
-### Frontend
+```text
+backend/                    # Express API, models, routes and tests
+frontend/                   # React client and tests
+k8s/                        # Kubernetes app and infra manifests
+argocd/                     # Argo CD Application definitions
+terraform/                  # AWS infrastructure as code
+Jenkinsfile                 # CI/CD pipeline
+sonar-project.properties    # SonarQube configuration
+.trivyignore                # Trivy ignore rules
+```
+
+<a id="application-context"></a>
+
+## 🧩 Application Context
+
+GymFlex is a full-stack fitness commerce application used as the workload for
+the DevOps platform.
+
+| Component | Technology |
+| --- | --- |
+| Frontend | React, Redux, Ant Design |
+| Backend | Node.js, Express, Mongoose |
+| Database | MongoDB / MongoDB Atlas |
+| Deployment | Docker, Kubernetes, Argo CD |
+| CI/CD | Jenkins, SonarQube, Trivy |
+| Infrastructure | Terraform on AWS |
+
+Main backend route groups:
+
+```text
+/api/user
+/api/product
+/api/blog
+/api/categories
+/api/exercise
+/api/order
+/api/cart
+/api/coupon
+/api/address
+/api/reviews
+```
+
+<a id="local-run"></a>
+
+## 💻 Local Run
+
+Frontend:
 
 ```bash
 cd frontend
@@ -115,7 +224,7 @@ npm ci
 npm start
 ```
 
-### Backend
+Backend:
 
 ```bash
 cd backend
@@ -129,24 +238,9 @@ Local ports:
 - Frontend: `3000`
 - Backend: `4000`
 
-## Backend API
+<a id="related-repository"></a>
 
-The backend exposes routes for:
+## 🔗 Related Repository
 
-- `/api/user`
-- `/api/product`
-- `/api/blog`
-- `/api/categories`
-- `/api/exercise`
-- `/api/order`
-- `/api/cart`
-- `/api/coupon`
-- `/api/address`
-- `/api/reviews`
-
-## Project Value
-
-- End-to-end delivery from code commit to Kubernetes deployment
-- CI/CD, quality gates, security scanning, and GitOps
-- Infrastructure automation with Terraform
-- A realistic multi-service application used to validate the platform
+[NT548-Group11/Manifests](https://github.com/NT548-Group11/Manifests) contains
+the GitOps Kubernetes manifests updated by the Jenkins pipeline.
